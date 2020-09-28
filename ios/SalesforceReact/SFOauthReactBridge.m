@@ -35,6 +35,8 @@ NSString * const kOrgIdCredentialsDictKey = @"orgId";
 NSString * const kLoginUrlCredentialsDictKey = @"loginUrl";
 NSString * const kInstanceUrlCredentialsDictKey = @"instanceUrl";
 NSString * const kUserAgentCredentialsDictKey = @"userAgent";
+NSString * const kCommunityIdCredentialsDictKey= @"communityId";
+NSString * const kCommunityUrlCredentialsDictKey= @"communityUrl";
 
 @implementation SFOauthReactBridge
 
@@ -51,6 +53,17 @@ RCT_EXPORT_METHOD(getAuthCredentials:(NSDictionary *)args callback:(RCTResponseS
 RCT_EXPORT_METHOD(logoutCurrentUser:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
 {
     [SFSDKReactLogger d:[self class] format:@"logoutCurrentUser: arguments: %@", args];
+
+    __block id observerRef;
+    id observer = [[NSNotificationCenter defaultCenter]
+                   addObserverForName:kSFNotificationUserDidLogout
+                   object:nil
+                   queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        callback(@[[NSNull null], @"OK"]);
+        [[NSNotificationCenter defaultCenter] removeObserver:observerRef];
+    }];
+    observerRef = observer;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         [[SFUserAccountManager sharedInstance] logout];
     });
@@ -77,12 +90,15 @@ RCT_EXPORT_METHOD(authenticate:(NSDictionary *)args callback:(RCTResponseSenderB
     if (nil != creds) {
         NSString *instanceUrl = creds.instanceUrl.absoluteString;
         NSString *loginUrl = [NSString stringWithFormat:@"%@://%@", creds.protocol, creds.domain];
+        NSString *communityUrl = creds.communityUrl ? creds.communityUrl.absoluteString : nil;
         NSString *uaString = [SalesforceSDKManager sharedManager].userAgentString(@"");
         NSDictionary* credentialsDict = @{kAccessTokenCredentialsDictKey: creds.accessToken,
                                           kRefreshTokenCredentialsDictKey: creds.refreshToken,
                                           kClientIdCredentialsDictKey: creds.clientId,
                                           kUserIdCredentialsDictKey: creds.userId,
                                           kOrgIdCredentialsDictKey: creds.organizationId,
+                                          kCommunityIdCredentialsDictKey: creds.communityId ?: [NSNull null],
+                                          kCommunityUrlCredentialsDictKey: communityUrl ?: [NSNull null],
                                           kLoginUrlCredentialsDictKey: loginUrl,
                                           kInstanceUrlCredentialsDictKey: instanceUrl,
                                           kUserAgentCredentialsDictKey: uaString};
