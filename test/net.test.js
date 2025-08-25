@@ -27,35 +27,34 @@
 import { assert } from 'chai';
 import * as net from '../src/react.force.net';
 import { registerTest, testDone } from '../src/react.force.test';
-import { promiser } from '../src/react.force.util';
 
-// Promised based bridge functions for more readable tests
-netVersions = promiser(net.versions);
-netResources = promiser(net.resources);
-netDescribeGlobal = promiser(net.describeGlobal);
-netMetadata = promiser(net.metadata);
-netDescribe = promiser(net.describe);
-netDescribeLayout = promiser(net.describeLayout);
-netCreate = promiser(net.create);
-netRetrieve = promiser(net.retrieve);
-netUpsert = promiser(net.upsert);
-netUpdate = promiser(net.update);
-netDel = promiser(net.del);
-netQuery = promiser(net.query);
-netSearch = promiser(net.search);
-netCollectionCreate = promiser(net.collectionCreate);
-netCollectionRetrieve= promiser(net.collectionRetrieve);
-netCollectionUpdate = promiser(net.collectionUpdate);
-netCollectionUpsert = promiser(net.collectionUpsert);
-netCollectionDelete = promiser(net.collectionDelete);
+
+
+const netVersions = net.versions;
+const netResources = net.resources;
+const netDescribeGlobal = net.describeGlobal;
+const netMetadata = net.metadata;
+const netDescribe = net.describe;
+const netDescribeLayout = net.describeLayout;
+const netCreate = net.create;
+const netRetrieve = net.retrieve;
+const netUpsert = net.upsert;
+const netUpdate = net.update;
+const netDel = net.del;
+const netQuery = net.query;
+const netSearch = net.search;
+const netCollectionCreate = net.collectionCreate;
+const netCollectionRetrieve = net.collectionRetrieve;
+const netCollectionUpdate = net.collectionUpdate;
+const netCollectionUpsert = net.collectionUpsert;
+const netCollectionDelete = net.collectionDelete;
 
 const apiVersion = 'v63.0';
 
-const sendUnAuthenticatedNetRequest = (url, callback, error) => {
-    return net.sendRequest(null, url, callback, error,"GET", null, null, null, false, true);
-};
 
-netSendRequest = promiser(sendUnAuthenticatedNetRequest);
+const netSendRequest = async (url) => {
+    return await net.sendRequest(null, url, "GET", null, null, null, false, true);
+};
 
 testGetApiVersion = () => {
     assert.equal(net.getApiVersion(), apiVersion);

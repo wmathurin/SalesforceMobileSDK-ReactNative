@@ -1,22 +1,14 @@
-import { ExecErrorCallback, ExecSuccessCallback } from "./react.force.common";
-import { StoreConfig } from "./react.force.smartstore";
-import { SyncDownTarget, SyncEvent, SyncOptions, SyncStatus, SyncUpTarget } from "./typings/mobilesync";
-type SyncDownOverload = {
-    (storeConfig: StoreConfig | boolean, target: SyncDownTarget, soupName: string, options: SyncOptions, syncName: string, successCB: ExecSuccessCallback<SyncEvent>, errorCB: ExecErrorCallback): void;
-    (storeConfig: StoreConfig | boolean, target: SyncDownTarget, soupName: string, options: SyncOptions, successCB: ExecSuccessCallback<SyncEvent>, errorCB: ExecErrorCallback): void;
-};
-export declare const syncDown: SyncDownOverload;
-export declare const reSync: (storeConfig: StoreConfig | boolean, syncIdOrName: string | number, successCB: ExecSuccessCallback<SyncEvent>, errorCB: ExecErrorCallback) => void;
-export declare const cleanResyncGhosts: (storeConfig: StoreConfig | boolean, syncId: number, successCB: ExecSuccessCallback<number>, errorCB: ExecErrorCallback) => void;
-type SyncUpOverload = {
-    (storeConfig: StoreConfig | boolean, target: SyncUpTarget, soupName: string, options: SyncOptions, syncName: string, successCB: ExecSuccessCallback<SyncEvent>, errorCB: ExecErrorCallback): void;
-    (storeConfig: StoreConfig | boolean, target: SyncUpTarget, soupName: string, options: SyncOptions, successCB: ExecSuccessCallback<SyncEvent>, errorCB: ExecErrorCallback): void;
-};
-export declare const syncUp: SyncUpOverload;
-export declare const getSyncStatus: (storeConfig: StoreConfig | boolean, syncIdOrName: string, successCB: ExecSuccessCallback<SyncStatus>, errorCB: ExecErrorCallback) => void;
-export declare const deleteSync: (storeConfig: StoreConfig | boolean, syncIdOrName: string | number, successCB: ExecSuccessCallback<unknown>, errorCB: ExecErrorCallback) => void;
-export declare const MERGE_MODE: {
-    readonly OVERWRITE: "OVERWRITE";
-    readonly LEAVE_IF_CHANGED: "LEAVE_IF_CHANGED";
-};
-export {};
+import { StoreConfig, SyncDownTarget, SyncUpTarget, SyncOptions, SyncEvent, SyncStatus, MergeMode } from "./specs/SFMobileSyncSpec";
+export declare const createStoreConfig: (isGlobalStore?: boolean, storeName?: string) => StoreConfig;
+export declare const createSyncOptions: (fieldlist?: string[], mergeMode?: MergeMode) => SyncOptions;
+export declare const createSoqlSyncDownTarget: (query: string, modificationDateFieldName?: string) => SyncDownTarget;
+export declare const createSoslSyncDownTarget: (query: string) => SyncDownTarget;
+export declare const createMruSyncDownTarget: (sobjectType: string) => SyncDownTarget;
+export declare const createSyncUpTarget: (createFieldlist?: string[], updateFieldlist?: string[]) => SyncUpTarget;
+export declare const getSyncStatus: (syncId: number, storeConfig?: StoreConfig) => Promise<SyncStatus>;
+export declare const deleteSync: (syncId: number, storeConfig?: StoreConfig) => Promise<string>;
+export declare const syncDown: (target: SyncDownTarget, soupName: string, options: SyncOptions, syncName?: string, storeConfig?: StoreConfig) => Promise<SyncEvent>;
+export declare const reSync: (syncId: number, storeConfig?: StoreConfig) => Promise<SyncEvent>;
+export declare const cleanResyncGhosts: (syncId: number, storeConfig?: StoreConfig) => Promise<string>;
+export declare const syncUp: (target: SyncUpTarget, soupName: string, options: SyncOptions, syncName?: string, storeConfig?: StoreConfig) => Promise<SyncEvent>;
+export declare const exampleMobileSyncWorkflow: () => Promise<void>;

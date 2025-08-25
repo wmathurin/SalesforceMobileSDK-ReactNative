@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-present, salesforce.com, inc.
+ * Copyright (c) 2025-present, salesforce.com, inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
@@ -23,17 +23,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-// @ts-ignore
-import timer from "react-native-timer";
 
-export const timeoutPromiser = (millis: number): Promise<void> => {
-  return new Promise((resolve) => {
-    timer.setTimeout(
-      "timeoutTimer",
-      () => {
-        resolve();
-      },
-      millis,
-    );
-  });
+import type { TurboModule } from 'react-native';
+import { TurboModuleRegistry } from 'react-native';
+
+/**
+ * User Account type for OAuth operations
+ */
+export type UserAccount = {
+  accessToken: string;
+  clientId: string;
+  instanceUrl: string;
+  loginUrl: string;
+  orgId: string;
+  refreshToken: string;
+  userAgent: string;
+  userId: string;
+  communityId?: string;
+  communityUrl?: string;
 };
+
+/**
+ * TurboModule specification for Salesforce OAuth operations
+ */
+export interface Spec extends TurboModule {
+  /**
+   * Initiates the authentication process
+   * @returns Promise that resolves with UserAccount credentials
+   */
+  authenticate(): Promise<UserAccount>;
+
+  /**
+   * Obtain current authentication credentials
+   * @returns Promise that resolves with UserAccount credentials or rejects if not authenticated
+   */
+  getAuthCredentials(): Promise<UserAccount>;
+
+  /**
+   * Logout the current authenticated user
+   * @returns Promise that resolves when logout is complete
+   */
+  logoutCurrentUser(): Promise<void>;
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('SFOauthReactBridge');

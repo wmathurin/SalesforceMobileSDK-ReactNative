@@ -27,6 +27,9 @@
 #import <React/RCTUtils.h>
 #import <SalesforceSDKCore/SalesforceSDKManager.h>
 #import <SalesforceSDKCore/SFUserAccountManager.h>
+
+// Import the generated TurboModule spec
+#import <SalesforceReactSpec/SalesforceReactSpec.h>
 NSString * const kAccessTokenCredentialsDictKey = @"accessToken";
 NSString * const kRefreshTokenCredentialsDictKey = @"refreshToken";
 NSString * const kClientIdCredentialsDictKey = @"clientId";
@@ -42,24 +45,26 @@ NSString * const kCommunityUrlCredentialsDictKey= @"communityUrl";
 
 RCT_EXPORT_MODULE();
 
-#pragma mark - Bridged methods
+#pragma mark - TurboModule methods
 
-RCT_EXPORT_METHOD(getAuthCredentials:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(getAuthCredentials:(RCTPromiseResolveBlock)resolve 
+                  reject:(RCTPromiseRejectBlock)reject)
 {
-    [SFSDKReactLogger d:[self class] format:@"getAuthCredentials: arguments: %@", args];
-    [self getAuthCredentialsWithCallback:callback];
+    [SFSDKReactLogger d:[self class] format:@"getAuthCredentials called"];
+    [self getAuthCredentialsWithResolve:resolve reject:reject];
 }
 
-RCT_EXPORT_METHOD(logoutCurrentUser:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(logoutCurrentUser:(RCTPromiseResolveBlock)resolve 
+                  reject:(RCTPromiseRejectBlock)reject)
 {
-    [SFSDKReactLogger d:[self class] format:@"logoutCurrentUser: arguments: %@", args];
+    [SFSDKReactLogger d:[self class] format:@"logoutCurrentUser called"];
 
     __block id observerRef;
     id observer = [[NSNotificationCenter defaultCenter]
                    addObserverForName:kSFNotificationUserDidLogout
                    object:nil
                    queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        callback(@[[NSNull null], @"OK"]);
+        resolve(@"Logout successful");
         [[NSNotificationCenter defaultCenter] removeObserver:observerRef];
     }];
     observerRef = observer;
@@ -69,22 +74,24 @@ RCT_EXPORT_METHOD(logoutCurrentUser:(NSDictionary *)args callback:(RCTResponseSe
     });
 }
 
-RCT_EXPORT_METHOD(authenticate:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(authenticate:(RCTPromiseResolveBlock)resolve 
+                  reject:(RCTPromiseRejectBlock)reject)
 {
     __weak typeof(self) weakSelf = self;
-    [SFSDKReactLogger d:[self class] format:@"authenticate: arguments: %@", args];
+    [SFSDKReactLogger d:[self class] format:@"authenticate called"];
     dispatch_async(dispatch_get_main_queue(), ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [[SFUserAccountManager sharedInstance] loginWithCompletion:^(SFOAuthInfo *authInfo,SFUserAccount *userAccount) {
             [SFUserAccountManager sharedInstance].currentUser  =  userAccount;
-            [strongSelf sendAuthCredentials:callback];
+            [strongSelf sendAuthCredentialsWithResolve:resolve reject:reject];
         } failure:^(SFOAuthInfo *authInfo, NSError *error) {
-            [strongSelf sendNotAuthenticatedError:callback];
+            [strongSelf sendNotAuthenticatedErrorWithReject:reject];
         }];
     });
 }
 
-- (void)sendAuthCredentials:(RCTResponseSenderBlock) callback
+- (void)sendAuthCredentialsWithResolve:(RCTPromiseResolveBlock)resolve 
+                                reject:(RCTPromiseRejectBlock)reject
 {
     SFOAuthCredentials *creds = [SFUserAccountManager sharedInstance].currentUser.credentials;
     if (nil != creds) {
@@ -102,27 +109,36 @@ RCT_EXPORT_METHOD(authenticate:(NSDictionary *)args callback:(RCTResponseSenderB
                                           kLoginUrlCredentialsDictKey: loginUrl,
                                           kInstanceUrlCredentialsDictKey: instanceUrl,
                                           kUserAgentCredentialsDictKey: uaString};
-        callback(@[[NSNull null], credentialsDict]);
+        resolve(credentialsDict);
     } else {
-        [self sendNotAuthenticatedError:callback];
+        [self sendNotAuthenticatedErrorWithReject:reject];
     }
 }
 
-- (void)sendNotAuthenticatedError:(RCTResponseSenderBlock) callback
+- (void)sendNotAuthenticatedErrorWithReject:(RCTPromiseRejectBlock)reject
 {
-    callback(@[RCTMakeError(@"Not authenticated", nil, nil)]);
+    reject(@"NOT_AUTHENTICATED", @"User is not authenticated", nil);
 }
 
-- (void)getAuthCredentialsWithCallback:(RCTResponseSenderBlock) callback
+- (void)getAuthCredentialsWithResolve:(RCTPromiseResolveBlock)resolve 
+                               reject:(RCTPromiseRejectBlock)reject
 {
     SFOAuthCredentials *creds = [SFUserAccountManager sharedInstance].currentUser.credentials;
     NSString *accessToken = creds.accessToken;
     
     // If access token is not present, send error so user can manually authenticate. Otherwise, send current credentials.
     if (accessToken) {
-        [self sendAuthCredentials:callback];
+        [self sendAuthCredentialsWithResolve:resolve reject:reject];
     } else {
-        [self sendNotAuthenticatedError:callback];
+        [self sendNotAuthenticatedErrorWithReject:reject];
     }
+}
+
+#pragma mark - TurboModule
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSFOauthReactBridgeSpecJSI>(params);
 }
 @end

@@ -27,28 +27,29 @@
 import { assert } from 'chai';
 import * as smartstore from '../src/react.force.smartstore';
 import { registerTest, testDone } from '../src/react.force.test';
-import { promiser } from '../src/react.force.util';
 
-// Promised based bridge functions for more readable tests
-getDatabaseSize = promiser(smartstore.getDatabaseSize);
-registerSoup = promiser(smartstore.registerSoup);
-soupExists = promiser(smartstore.soupExists);
-removeSoup = promiser(smartstore.removeSoup);
-getSoupIndexSpecs = promiser(smartstore.getSoupIndexSpecs);
-upsertSoupEntries = promiser(smartstore.upsertSoupEntries);
-retrieveSoupEntries = promiser(smartstore.retrieveSoupEntries);
-querySoup = promiser(smartstore.querySoup);
-runSmartQuery = promiser(smartstore.runSmartQuery);
-removeFromSoup = promiser(smartstore.removeFromSoup);
-clearSoup = promiser(smartstore.clearSoup);
-getAllStores = promiser(smartstore.getAllStores);
-getAllGlobalStores = promiser(smartstore.getAllGlobalStores);
-removeStore = promiser(smartstore.removeStore);
-removeAllStores = promiser(smartstore.removeAllStores);
-removeAllGlobalStores = promiser(smartstore.removeAllGlobalStores);
-moveCursorToNextPage = promiser(smartstore.moveCursorToNextPage);
-moveCursorToPreviousPage = promiser(smartstore.moveCursorToPreviousPage);
-closeCursor = promiser(smartstore.closeCursor);
+
+
+const getDatabaseSize = smartstore.getDatabaseSize;
+const registerSoup = smartstore.registerSoup;
+const soupExists = smartstore.soupExists;
+const removeSoup = smartstore.removeSoup;
+const getSoupIndexSpecs = smartstore.getSoupIndexSpecs;
+const upsertSoupEntries = smartstore.upsertSoupEntries;
+const retrieveSoupEntries = smartstore.retrieveSoupEntries;
+const querySoup = smartstore.querySoup;
+const runSmartQuery = smartstore.runSmartQuery;
+const removeFromSoup = smartstore.removeFromSoup;
+const clearSoup = smartstore.clearSoup;
+const getAllStores = smartstore.getAllStores;
+const getAllGlobalStores = smartstore.getAllGlobalStores;
+const removeStore = smartstore.removeStore;
+const removeAllStores = smartstore.removeAllStores;
+const removeAllGlobalStores = smartstore.removeAllGlobalStores;
+// Note: moveCursorToNextPage/moveCursorToPreviousPage not in new TurboModule API
+// Use moveCursorToPageIndex instead
+const moveCursorToPageIndex = smartstore.moveCursorToPageIndex;
+const closeCursor = smartstore.closeCursor;
 
 const storeConfig = {isGlobalStore:false};
 

@@ -29,26 +29,26 @@ import * as net from '../src/react.force.net';
 import * as smartstore from '../src/react.force.smartstore';
 import * as mobilesync from '../src/react.force.mobilesync';
 import { registerTest, testDone } from '../src/react.force.test';
-import { promiser, timeoutPromiser } from '../src/react.force.util';
+import { timeoutPromiser } from '../src/react.force.util';
 
-// Promised based bridge functions for more readable tests
-netCreate = promiser(net.create);
-netRetrieve = promiser(net.retrieve);
-netUpdate = promiser(net.update);
-netDel = promiser(net.del);
-netQuery = promiser(net.query);
 
-registerSoup = promiser(smartstore.registerSoup);
-upsertSoupEntries = promiser(smartstore.upsertSoupEntries);
-retrieveSoupEntries = promiser(smartstore.retrieveSoupEntries);
-runSmartQuery = promiser(smartstore.runSmartQuery);
+const netCreate = net.create;
+const netRetrieve = net.retrieve;
+const netUpdate = net.update;
+const netDel = net.del;
+const netQuery = net.query;
 
-getSyncStatus = promiser(mobilesync.getSyncStatus);
-deleteSync = promiser(mobilesync.deleteSync);
-syncDown = promiser(mobilesync.syncDown);
-syncUp = promiser(mobilesync.syncUp);
-reSync = promiser(mobilesync.reSync);
-cleanResyncGhosts = promiser(mobilesync.cleanResyncGhosts);
+const registerSoup = smartstore.registerSoup;
+const upsertSoupEntries = smartstore.upsertSoupEntries;
+const retrieveSoupEntries = smartstore.retrieveSoupEntries;
+const runSmartQuery = smartstore.runSmartQuery;
+
+const getSyncStatus = mobilesync.getSyncStatus;
+const deleteSync = mobilesync.deleteSync;
+const syncDown = mobilesync.syncDown;
+const syncUp = mobilesync.syncUp;
+const reSync = mobilesync.reSync;
+const cleanResyncGhosts = mobilesync.cleanResyncGhosts;
 
 const storeConfig = {isGlobalStore:false};
 const soupName = 'contacts';

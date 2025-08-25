@@ -1,373 +1,157 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeAllStores = exports.removeAllGlobalStores = exports.removeStore = exports.getAllGlobalStores = exports.getAllStores = exports.closeCursor = exports.moveCursorToPreviousPage = exports.moveCursorToNextPage = exports.moveCursorToPageIndex = exports.removeFromSoup = exports.upsertSoupEntriesWithExternalId = exports.upsertSoupEntries = exports.retrieveSoupEntries = exports.runSmartQuery = exports.querySoup = exports.soupExists = exports.clearSoup = exports.reIndexSoup = exports.alterSoup = exports.getSoupIndexSpecs = exports.removeSoup = exports.registerSoup = exports.getDatabaseSize = exports.buildSmartQuerySpec = exports.buildMatchQuerySpec = exports.buildLikeQuerySpec = exports.buildRangeQuerySpec = exports.buildExactQuerySpec = exports.buildAllQuerySpec = exports.StoreCursor = exports.QuerySpec = exports.SoupIndexSpec = exports.StoreConfig = void 0;
-const react_native_1 = require("react-native");
-const react_force_common_1 = require("./react.force.common");
-const { SmartStoreReactBridge, SFSmartStoreReactBridge } = react_native_1.NativeModules;
-const exec = (successCB, errorCB, methodName, args) => {
-    (0, react_force_common_1.exec)("SFSmartStoreReactBridge", "SmartStoreReactBridge", SFSmartStoreReactBridge, SmartStoreReactBridge, successCB, errorCB, methodName, args);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-class StoreConfig {
-    constructor(storeName, isGlobalStore) {
-        this.storeName = storeName;
-        this.isGlobalStore = isGlobalStore;
-    }
-}
-exports.StoreConfig = StoreConfig;
-class SoupIndexSpec {
-    constructor(path, type) {
-        this.path = path;
-        this.type = type;
-    }
-}
-exports.SoupIndexSpec = SoupIndexSpec;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDatabaseSize = exports.removeAllGlobalStores = exports.removeAllStores = exports.removeStore = exports.getAllGlobalStores = exports.getAllStores = exports.closeCursor = exports.moveCursorToPageIndex = exports.runSmartQuery = exports.querySoup = exports.removeFromSoup = exports.retrieveSoupEntries = exports.upsertSoupEntries = exports.reIndexSoup = exports.alterSoup = exports.getSoupIndexSpecs = exports.clearSoup = exports.removeSoup = exports.registerSoup = exports.soupExists = exports.QuerySpec = exports.createJSON1Index = exports.createFullTextIndex = exports.createFloatingIndex = exports.createIntegerIndex = exports.createStringIndex = exports.createSoupIndexSpec = exports.createStoreConfig = void 0;
+const SFSmartStoreSpec_1 = __importDefault(require("./specs/SFSmartStoreSpec"));
+const createStoreConfig = (isGlobalStore = false, storeName) => ({
+    isGlobalStore,
+    storeName
+});
+exports.createStoreConfig = createStoreConfig;
+const createSoupIndexSpec = (path, type) => ({
+    path,
+    type
+});
+exports.createSoupIndexSpec = createSoupIndexSpec;
+const createStringIndex = (path) => (0, exports.createSoupIndexSpec)(path, 'string');
+exports.createStringIndex = createStringIndex;
+const createIntegerIndex = (path) => (0, exports.createSoupIndexSpec)(path, 'integer');
+exports.createIntegerIndex = createIntegerIndex;
+const createFloatingIndex = (path) => (0, exports.createSoupIndexSpec)(path, 'floating');
+exports.createFloatingIndex = createFloatingIndex;
+const createFullTextIndex = (path) => (0, exports.createSoupIndexSpec)(path, 'full_text');
+exports.createFullTextIndex = createFullTextIndex;
+const createJSON1Index = (path) => (0, exports.createSoupIndexSpec)(path, 'json1');
+exports.createJSON1Index = createJSON1Index;
 class QuerySpec {
-    constructor(path) {
-        this.queryType = "exact";
-        this.order = "ascending";
-        this.pageSize = 10;
-        this.indexPath = path;
+    static buildAllQuerySpec(orderPath, order = 'ascending', pageSize = 10) {
+        return {
+            queryType: 'smart',
+            smartSql: 'SELECT {_soup:_soupEntryId} FROM {_soup}',
+            orderPath,
+            order,
+            pageSize
+        };
+    }
+    static buildExactQuerySpec(indexPath, matchKey, orderPath, order = 'ascending', pageSize = 10) {
+        return {
+            queryType: 'exact',
+            indexPath,
+            matchKey,
+            orderPath,
+            order,
+            pageSize
+        };
+    }
+    static buildRangeQuerySpec(indexPath, beginKey, endKey, orderPath, order = 'ascending', pageSize = 10) {
+        return {
+            queryType: 'range',
+            indexPath,
+            beginKey,
+            endKey,
+            orderPath,
+            order,
+            pageSize
+        };
+    }
+    static buildSmartQuerySpec(smartSql, pageSize = 10) {
+        return {
+            queryType: 'smart',
+            smartSql,
+            pageSize
+        };
     }
 }
 exports.QuerySpec = QuerySpec;
-class StoreCursor {
-    constructor() {
-        this.pageSize = 0;
-        this.totalEntries = 0;
-        this.totalPages = 0;
-        this.currentPageIndex = 0;
-        this.currentPageOrderedEntries = [];
-    }
-}
-exports.StoreCursor = StoreCursor;
-const buildAllQuerySpec = (path, order, pageSize, selectPaths) => {
-    const inst = new QuerySpec(path);
-    inst.queryType = "range";
-    inst.orderPath = path;
-    if (order) {
-        inst.order = order;
-    }
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    if (selectPaths) {
-        inst.selectPaths = selectPaths;
-    }
-    return inst;
-};
-exports.buildAllQuerySpec = buildAllQuerySpec;
-const buildExactQuerySpec = (path, matchKey, pageSize, order, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
-    inst.matchKey = matchKey;
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    if (order) {
-        inst.order = order;
-    }
-    inst.orderPath = orderPath ? orderPath : path;
-    if (selectPaths) {
-        inst.selectPaths = selectPaths;
-    }
-    return inst;
-};
-exports.buildExactQuerySpec = buildExactQuerySpec;
-const buildRangeQuerySpec = (path, beginKey, endKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
-    inst.queryType = "range";
-    inst.beginKey = beginKey;
-    inst.endKey = endKey;
-    if (order) {
-        inst.order = order;
-    }
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    inst.orderPath = orderPath ? orderPath : path;
-    if (selectPaths) {
-        inst.selectPaths = selectPaths;
-    }
-    return inst;
-};
-exports.buildRangeQuerySpec = buildRangeQuerySpec;
-const buildLikeQuerySpec = (path, likeKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
-    inst.queryType = "like";
-    inst.likeKey = likeKey;
-    if (order) {
-        inst.order = order;
-    }
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    inst.orderPath = orderPath ? orderPath : path;
-    if (selectPaths) {
-        inst.selectPaths = selectPaths;
-    }
-    return inst;
-};
-exports.buildLikeQuerySpec = buildLikeQuerySpec;
-const buildMatchQuerySpec = (path, matchKey, order, pageSize, orderPath, selectPaths) => {
-    const inst = new QuerySpec(path);
-    inst.queryType = "match";
-    inst.matchKey = matchKey;
-    inst.orderPath = orderPath;
-    if (order) {
-        inst.order = order;
-    }
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    inst.orderPath = orderPath ? orderPath : path;
-    if (selectPaths) {
-        inst.selectPaths = selectPaths;
-    }
-    return inst;
-};
-exports.buildMatchQuerySpec = buildMatchQuerySpec;
-const buildSmartQuerySpec = (smartSql, pageSize) => {
-    const inst = new QuerySpec();
-    inst.queryType = "smart";
-    inst.smartSql = smartSql;
-    if (pageSize) {
-        inst.pageSize = pageSize;
-    }
-    return inst;
-};
-exports.buildSmartQuerySpec = buildSmartQuerySpec;
-const checkFirstArg = (arg) => {
-    if (typeof arg === "object" && arg.hasOwnProperty("isGlobalStore")) {
-        return arg;
-    }
-    let isGlobalStore = false;
-    if (typeof arg === "boolean") {
-        isGlobalStore = arg;
-    }
-    return { isGlobalStore };
-};
-const getDatabaseSize = (storeConfig, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "getDatabaseSize", {
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.getDatabaseSize = getDatabaseSize;
-const registerSoup = (storeConfig, soupName, indexSpecs, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "registerSoup", {
-        soupName,
-        indexes: indexSpecs,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.registerSoup = registerSoup;
-const removeSoup = (storeConfig, soupName, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "removeSoup", {
-        soupName,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.removeSoup = removeSoup;
-const getSoupIndexSpecs = (storeConfig, soupName, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "getSoupIndexSpecs", {
-        soupName,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.getSoupIndexSpecs = getSoupIndexSpecs;
-const alterSoup = (storeConfig, soupName, indexSpecs, reIndexData, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "alterSoup", {
-        soupName,
-        indexes: indexSpecs,
-        reIndexData,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.alterSoup = alterSoup;
-const reIndexSoup = (storeConfig, soupName, paths, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "reIndexSoup", {
-        soupName,
-        paths,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.reIndexSoup = reIndexSoup;
-const clearSoup = (storeConfig, soupName, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "clearSoup", {
-        soupName,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.clearSoup = clearSoup;
-const soupExists = (storeConfig, soupName, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "soupExists", {
-        soupName,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
+const soupExists = (soupName, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.soupExists(soupName, storeConfig);
+});
 exports.soupExists = soupExists;
-const querySoup = (storeConfig, soupName, querySpec, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    if (querySpec.queryType === "smart") {
-        throw new Error("Smart queries can only be run using runSmartQuery");
-    }
-    if (querySpec.order != null && querySpec.orderPath == null) {
-        querySpec.orderPath = querySpec.indexPath;
-    }
-    const successCBdeserializing = successCB
-        ? (result) => successCB(typeof result === "string" ? (0, react_force_common_1.safeJSONparse)(result) : result)
-        : successCB;
-    exec(successCBdeserializing, errorCB, "querySoup", {
-        soupName,
-        querySpec,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.querySoup = querySoup;
-const runSmartQuery = (storeConfig, querySpec, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    if (querySpec.queryType !== "smart") {
-        throw new Error("runSmartQuery can only run smart queries");
-    }
-    const successCBdeserializing = successCB
-        ? (result) => successCB(typeof result === "string" ? (0, react_force_common_1.safeJSONparse)(result) : result)
-        : successCB;
-    exec(successCBdeserializing, errorCB, "runSmartQuery", {
-        querySpec,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.runSmartQuery = runSmartQuery;
-const retrieveSoupEntries = (storeConfig, soupName, entryIds, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "retrieveSoupEntries", {
-        soupName,
-        entryIds,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.retrieveSoupEntries = retrieveSoupEntries;
-const upsertSoupEntries = (storeConfig, soupName, entries, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    (0, exports.upsertSoupEntriesWithExternalId)(storeConfig, soupName, entries, "_soupEntryId", successCB, errorCB);
-};
+const registerSoup = (soupName, indexSpecs, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.registerSoup(soupName, indexSpecs, storeConfig);
+});
+exports.registerSoup = registerSoup;
+const removeSoup = (soupName, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.removeSoup(soupName, storeConfig);
+});
+exports.removeSoup = removeSoup;
+const clearSoup = (soupName, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.clearSoup(soupName, storeConfig);
+});
+exports.clearSoup = clearSoup;
+const getSoupIndexSpecs = (soupName, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.getSoupIndexSpecs(soupName, storeConfig);
+});
+exports.getSoupIndexSpecs = getSoupIndexSpecs;
+const alterSoup = (soupName, indexSpecs, reIndexData, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.alterSoup(soupName, indexSpecs, reIndexData, storeConfig);
+});
+exports.alterSoup = alterSoup;
+const reIndexSoup = (soupName, indexPaths, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.reIndexSoup(soupName, indexPaths, storeConfig);
+});
+exports.reIndexSoup = reIndexSoup;
+const upsertSoupEntries = (soupName, entries, external, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.upsertSoupEntries(soupName, entries, external, storeConfig);
+});
 exports.upsertSoupEntries = upsertSoupEntries;
-let upsertSoupEntriesWithExternalId = (storeConfig, soupName, entries, externalIdPath, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "upsertSoupEntries", {
-        soupName,
-        entries,
-        externalIdPath,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
-exports.upsertSoupEntriesWithExternalId = upsertSoupEntriesWithExternalId;
-const removeFromSoup = (storeConfig, soupName, entryIdsOrQuerySpec, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    var execArgs = {
-        soupName,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    };
-    if (entryIdsOrQuerySpec instanceof Array) {
-        execArgs.entryIds = entryIdsOrQuerySpec;
-        execArgs.querySpec = undefined;
-    }
-    else {
-        execArgs.querySpec = entryIdsOrQuerySpec;
-        execArgs.entryIds = undefined;
-    }
-    exec(successCB, errorCB, "removeFromSoup", execArgs);
-};
+const retrieveSoupEntries = (soupName, entryIds, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.retrieveSoupEntries(soupName, entryIds, storeConfig);
+});
+exports.retrieveSoupEntries = retrieveSoupEntries;
+const removeFromSoup = (soupName, entryIds, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.removeFromSoup(soupName, entryIds, storeConfig);
+});
 exports.removeFromSoup = removeFromSoup;
-const moveCursorToPageIndex = (storeConfig, cursor, newPageIndex, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    let successCBdeserializing;
-    if (successCB) {
-        successCBdeserializing = (result) => successCB(typeof result === "string" ? (0, react_force_common_1.safeJSONparse)(result) : result);
-    }
-    else {
-        successCBdeserializing = successCB;
-    }
-    exec(successCBdeserializing, errorCB, "moveCursorToPageIndex", {
-        cursorId: cursor.cursorId,
-        index: newPageIndex,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
+const querySoup = (soupName, querySpec, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.querySoup(soupName, querySpec, storeConfig);
+});
+exports.querySoup = querySoup;
+const runSmartQuery = (querySpec, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.runSmartQuery(querySpec, storeConfig);
+});
+exports.runSmartQuery = runSmartQuery;
+const moveCursorToPageIndex = (cursorId, pageIndex, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.moveCursorToPageIndex(cursorId, pageIndex, storeConfig);
+});
 exports.moveCursorToPageIndex = moveCursorToPageIndex;
-const moveCursorToNextPage = (storeConfig, cursor, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    const newPageIndex = cursor.currentPageIndex + 1;
-    if (newPageIndex >= cursor.totalPages) {
-        errorCB(new Error("moveCursorToNextPage called while on last page"));
-    }
-    else {
-        (0, exports.moveCursorToPageIndex)(storeConfig, cursor, newPageIndex, successCB, errorCB);
-    }
-};
-exports.moveCursorToNextPage = moveCursorToNextPage;
-const moveCursorToPreviousPage = (storeConfig, cursor, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    const newPageIndex = cursor.currentPageIndex - 1;
-    if (newPageIndex < 0) {
-        errorCB(new Error("moveCursorToPreviousPage called while on first page"));
-    }
-    else {
-        (0, exports.moveCursorToPageIndex)(storeConfig, cursor, newPageIndex, successCB, errorCB);
-    }
-};
-exports.moveCursorToPreviousPage = moveCursorToPreviousPage;
-const closeCursor = (storeConfig, cursor, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "closeCursor", {
-        cursorId: cursor.cursorId,
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
+const closeCursor = (cursorId, storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.closeCursor(cursorId, storeConfig);
+});
 exports.closeCursor = closeCursor;
-const getAllStores = (successCB, errorCB) => {
-    exec(successCB, errorCB, "getAllStores", {});
-};
+const getAllStores = () => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.getAllStores();
+});
 exports.getAllStores = getAllStores;
-const getAllGlobalStores = (successCB, errorCB) => {
-    exec(successCB, errorCB, "getAllGlobalStores", {});
-};
+const getAllGlobalStores = () => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.getAllGlobalStores();
+});
 exports.getAllGlobalStores = getAllGlobalStores;
-const removeStore = (storeConfig, successCB, errorCB) => {
-    storeConfig = checkFirstArg(storeConfig);
-    exec(successCB, errorCB, "removeStore", {
-        isGlobalStore: storeConfig.isGlobalStore,
-        storeName: storeConfig.storeName,
-    });
-};
+const removeStore = (storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.removeStore(storeConfig);
+});
 exports.removeStore = removeStore;
-const removeAllGlobalStores = (successCB, errorCB) => {
-    exec(successCB, errorCB, "removeAllGlobalStores", {});
-};
-exports.removeAllGlobalStores = removeAllGlobalStores;
-const removeAllStores = (successCB, errorCB) => {
-    exec(successCB, errorCB, "removeAllStores", {});
-};
+const removeAllStores = () => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.removeAllStores();
+});
 exports.removeAllStores = removeAllStores;
+const removeAllGlobalStores = () => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.removeAllGlobalStores();
+});
+exports.removeAllGlobalStores = removeAllGlobalStores;
+const getDatabaseSize = (storeConfig) => __awaiter(void 0, void 0, void 0, function* () {
+    return SFSmartStoreSpec_1.default.getDatabaseSize(storeConfig);
+});
+exports.getDatabaseSize = getDatabaseSize;
 //# sourceMappingURL=react.force.smartstore.js.map

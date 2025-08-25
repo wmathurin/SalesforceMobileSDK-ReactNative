@@ -3,3 +3,27 @@ package-lock.json
 yarn.lock
 Podfile.lock
 .xcode.env
+
+# Build directories and generated files
+ios/generated/
+build/
+*/build/
+DerivedData/
+*.xcresult
+
+# iOS specific
+.xcode.env.local
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Test framework artifacts (downloaded by prepareios.js)
+iosTests/RCTTest/
+iosTests/react-native/
+iosTests/mobile_sdk/
+iosTests/ios/index.ios.bundle
+iosTests/test_credentials.json
+
+# macOS
+.DS_Store
+*.DS_Store

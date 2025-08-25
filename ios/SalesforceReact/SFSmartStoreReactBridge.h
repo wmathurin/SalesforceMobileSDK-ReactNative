@@ -22,11 +22,12 @@
  WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <SalesforceReactSpec/SalesforceReactSpec.h>
 #import <React/RCTBridgeModule.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SFSmartStoreReactBridge : NSObject <RCTBridgeModule>
+@interface SFSmartStoreReactBridge : NSObject <NativeSFSmartStoreReactBridgeSpec>
 
 @end
 

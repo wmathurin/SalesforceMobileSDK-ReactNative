@@ -24,74 +24,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from "react-native";
-import { exec as forceExec, ExecSuccessCallback, ExecErrorCallback } from "./react.force.common";
-import { OAuthMethod, UserAccount } from "./typings/oauth";
-const { SalesforceOauthReactBridge, SFOauthReactBridge } = NativeModules;
 
-const exec = <T>(
-  successCB: ExecSuccessCallback<T>,
-  errorCB: ExecErrorCallback,
-  methodName: OAuthMethod,
-  args: Record<string, unknown>,
-): void => {
-  forceExec(
-    "SFOauthReactBridge",
-    "SalesforceOauthReactBridge",
-    SFOauthReactBridge,
-    SalesforceOauthReactBridge,
-    successCB,
-    errorCB,
-    methodName,
-    args,
-  );
+import SFOauthSpec, { UserAccount } from "./specs/SFOauthSpec";
+
+/**
+ * Initiates the authentication process.
+ * Returns a Promise that resolves with UserAccount containing:
+ *   accessToken, refreshToken, clientId, userId, orgId, 
+ *   loginUrl, instanceUrl, userAgent, communityId, communityUrl
+ */
+export const authenticate = async (): Promise<UserAccount> => {
+  return SFOauthSpec.authenticate();
 };
 
 /**
- * Initiates the authentication process, with the given app configuration.
- *   success         - The success callback function to use.
- *   fail            - The failure/error callback function to use.
- * Returns a dictionary with:
- *   accessToken
- *   refreshToken
- *   clientId
- *   userId
- *   orgId
- *   loginUrl
- *   instanceUrl
- *   userAgent
- *   community id
- *   community url
+ * Obtain current authentication credentials.
+ * Returns a Promise that resolves with UserAccount containing:
+ *   accessToken, refreshToken, clientId, userId, orgId,
+ *   loginUrl, instanceUrl, userAgent, communityId, communityUrl
  */
-export const authenticate = (successCB: ExecSuccessCallback<UserAccount>, errorCB: ExecErrorCallback): void => {
-  exec(successCB, errorCB, "authenticate", {});
+export const getAuthCredentials = async (): Promise<UserAccount> => {
+  return SFOauthSpec.getAuthCredentials();
 };
 
 /**
- * Obtain authentication credentials.
- *   success - The success callback function to use.
- *   fail    - The failure/error callback function to use.
- * Returns a dictionary with:
- *   accessToken
- *   refreshToken
- *   clientId
- *   userId
- *   orgId
- *   loginUrl
- *   instanceUrl
- *   userAgent
- *   community id
- *   community url
+ * Logout the current authenticated user. 
+ * Removes any current valid session token and OAuth refresh token.
  */
-export const getAuthCredentials = (successCB: ExecSuccessCallback<UserAccount>, errorCB: ExecErrorCallback): void => {
-  exec(successCB, errorCB, "getAuthCredentials", {});
+export const logout = async (): Promise<void> => {
+  return SFOauthSpec.logoutCurrentUser();
 };
 
-/**
- * Logout the current authenticated user. This removes any current valid session token
- * as well as any OAuth refresh token.  
- */
-export const logout = <T>(success: ExecSuccessCallback<T>, fail: ExecErrorCallback) => {
-    // @ts-ignore
-    exec(success, fail, "logoutCurrentUser", {});
-};
+

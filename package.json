@@ -62,6 +62,14 @@
     "ios/SalesforceReact/**/*",
     "SalesforceReact.podspec"
   ],
+  "codegenConfig": {
+    "name": "SalesforceReactSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "outputDir": {
+      "ios": "ios/generated"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",

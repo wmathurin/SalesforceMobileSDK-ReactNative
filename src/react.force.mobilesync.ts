@@ -22,221 +22,202 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ * Salesforce Mobile SDK for React Native - MobileSync TurboModule
  */
-import { NativeModules } from "react-native";
-import { exec as forceExec, ExecErrorCallback, ExecSuccessCallback } from "./react.force.common";
-import { StoreConfig } from "./react.force.smartstore";
-import { SyncDownTarget, SyncEvent, SyncMethod, SyncOptions, SyncStatus, SyncUpTarget } from "./typings/mobilesync";
 
-const { MobileSyncReactBridge, SFMobileSyncReactBridge } = NativeModules;
+import SFMobileSyncSpec, {
+  StoreConfig, 
+  SyncDownTarget, 
+  SyncUpTarget, 
+  SyncOptions, 
+  SyncEvent,
+  SyncStatus,
+  MergeMode
+} from "./specs/SFMobileSyncSpec";
 
-// If param is a storeconfig return the same storeconfig
-// If param is a boolean, returns a storeconfig object  {'isGlobalStore': boolean}
-// Otherwise, returns a default storeconfig object
-const checkFirstArg = (arg: StoreConfig | boolean) => {
-  // Turning arguments into array
-  // If first argument is a store config
-  if (typeof arg === "object" && Object.prototype.hasOwnProperty.call(arg, "isGlobalStore")) {
-    return arg;
+/**
+ * Helper functions to create configuration objects
+ */
+
+/**
+ * Create a StoreConfig object for MobileSync operations
+ */
+export const createStoreConfig = (isGlobalStore: boolean = false, storeName?: string): StoreConfig => ({
+  isGlobalStore,
+  storeName
+});
+
+/**
+ * Create SyncOptions for sync operations
+ */
+export const createSyncOptions = (fieldlist?: string[], mergeMode: MergeMode = 'OVERWRITE'): SyncOptions => ({
+  fieldlist,
+  mergeMode
+});
+
+/**
+ * Create a SOQL SyncDownTarget
+ */
+export const createSoqlSyncDownTarget = (query: string, modificationDateFieldName?: string): SyncDownTarget => ({
+  type: 'soql',
+  query,
+  modificationDateFieldName
+});
+
+/**
+ * Create a SOSL SyncDownTarget  
+ */
+export const createSoslSyncDownTarget = (query: string): SyncDownTarget => ({
+  type: 'sosl',
+  query
+});
+
+/**
+ * Create an MRU (Most Recently Used) SyncDownTarget
+ */
+export const createMruSyncDownTarget = (sobjectType: string): SyncDownTarget => ({
+  type: 'mru',
+  query: sobjectType // For MRU, query field contains the sobject type
+});
+
+/**
+ * Create a SyncUpTarget
+ */
+export const createSyncUpTarget = (createFieldlist?: string[], updateFieldlist?: string[]): SyncUpTarget => ({
+  createFieldlist,
+  updateFieldlist
+});
+
+/**
+ * Sync Status Operations
+ */
+
+/**
+ * Get the status of a sync operation
+ * Returns Promise that resolves with detailed sync status information
+ */
+export const getSyncStatus = async (syncId: number, storeConfig?: StoreConfig): Promise<SyncStatus> => {
+  return SFMobileSyncSpec.getSyncStatus(syncId, storeConfig);
+};
+
+/**
+ * Delete a sync operation
+ * Removes the sync from the sync table
+ */
+export const deleteSync = async (syncId: number, storeConfig?: StoreConfig): Promise<string> => {
+  return SFMobileSyncSpec.deleteSync(syncId, storeConfig);
+};
+
+/**
+ * Sync Down Operations
+ */
+
+/**
+ * Perform sync down operation from Salesforce to local store
+ * Downloads records from Salesforce and stores them in the local SmartStore soup
+ */
+export const syncDown = async (
+  target: SyncDownTarget, 
+  soupName: string, 
+  options: SyncOptions, 
+  syncName?: string, 
+  storeConfig?: StoreConfig
+): Promise<SyncEvent> => {
+  return SFMobileSyncSpec.syncDown(target, soupName, options, syncName, storeConfig);
+};
+
+/**
+ * Re-run an existing sync operation
+ * Restarts a previously created sync operation
+ */
+export const reSync = async (syncId: number, storeConfig?: StoreConfig): Promise<SyncEvent> => {
+  return SFMobileSyncSpec.reSync(syncId, storeConfig);
+};
+
+/**
+ * Clean resync ghosts from the soup
+ * Removes records that were deleted on the server during a resync operation
+ */
+export const cleanResyncGhosts = async (syncId: number, storeConfig?: StoreConfig): Promise<string> => {
+  return SFMobileSyncSpec.cleanResyncGhosts(syncId, storeConfig);
+};
+
+/**
+ * Sync Up Operations
+ */
+
+/**
+ * Perform sync up operation from local store to Salesforce
+ * Uploads locally modified records back to Salesforce
+ */
+export const syncUp = async (
+  target: SyncUpTarget, 
+  soupName: string, 
+  options: SyncOptions, 
+  syncName?: string, 
+  storeConfig?: StoreConfig
+): Promise<SyncEvent> => {
+  return SFMobileSyncSpec.syncUp(target, soupName, options, syncName, storeConfig);
+};
+
+/**
+ * Example workflow demonstrating the modern TurboModule MobileSync API
+ */
+export const exampleMobileSyncWorkflow = async (): Promise<void> => {
+  const storeConfig = createStoreConfig(false, "myStore");
+  const soupName = "Account";
+
+  try {
+    console.log("🚀 Starting MobileSync TurboModule workflow...");
+
+    // 1. Create sync down target to fetch Account records
+    const syncDownTarget = createSoqlSyncDownTarget(
+      "SELECT Id, Name, Industry, Type FROM Account LIMIT 100",
+      "LastModifiedDate"
+    );
+
+    // 2. Create sync options
+    const syncOptions = createSyncOptions(["Id", "Name", "Industry", "Type"], "OVERWRITE");
+
+    // 3. Start sync down operation
+    console.log("⬇️ Starting sync down...");
+    const syncDownResult = await syncDown(syncDownTarget, soupName, syncOptions, "AccountSyncDown", storeConfig);
+    console.log(`✅ Sync down started. Sync ID: ${syncDownResult._soupEntryId}, Status: ${syncDownResult.status}`);
+
+    // 4. Monitor sync status
+    let syncStatus = await getSyncStatus(syncDownResult._soupEntryId, storeConfig);
+    console.log(`📊 Sync progress: ${syncStatus.progress}%, Status: ${syncStatus.status}`);
+
+    // 5. Wait for sync to complete (in real app, you'd use proper polling or events)
+    while (syncStatus.status === 'RUNNING') {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+      syncStatus = await getSyncStatus(syncDownResult._soupEntryId, storeConfig);
+      console.log(`📊 Sync progress: ${syncStatus.progress}%, Status: ${syncStatus.status}`);
+    }
+
+    if (syncStatus.status === 'DONE') {
+      console.log(`✅ Sync down completed! Total records: ${syncStatus.totalSize}`);
+
+      // 6. Example sync up operation (if you had locally modified records)
+      const syncUpTarget = createSyncUpTarget(["Name", "Industry"], ["Name", "Industry"]);
+      console.log("⬆️ Starting sync up...");
+      const syncUpResult = await syncUp(syncUpTarget, soupName, syncOptions, "AccountSyncUp", storeConfig);
+      console.log(`✅ Sync up started. Sync ID: ${syncUpResult._soupEntryId}`);
+
+      // 7. Clean up - delete completed syncs
+      await deleteSync(syncDownResult._soupEntryId, storeConfig);
+      console.log("🧹 Cleaned up sync down operation");
+
+    } else {
+      console.error(`❌ Sync failed with status: ${syncStatus.status}`);
+      if (syncStatus.error) {
+        console.error(`Error details: ${syncStatus.error}`);
+      }
+    }
+
+    console.log("🎉 MobileSync TurboModule workflow completed!");
+
+  } catch (error) {
+    console.error("❌ MobileSync workflow failed:", error);
   }
-
-  let isGlobalStore = false;
-  if (typeof arg === "boolean") {
-    isGlobalStore = arg;
-  }
-  return { isGlobalStore: isGlobalStore };
 };
-
-const exec = <T>(
-  successCB: ExecSuccessCallback<T>,
-  errorCB: ExecErrorCallback,
-  methodName: SyncMethod,
-  args: Record<string, unknown>,
-) => {
-  forceExec(
-    "SFMobileSyncReactBridge",
-    "MobileSyncReactBridge",
-    SFMobileSyncReactBridge,
-    MobileSyncReactBridge,
-    successCB,
-    errorCB,
-    methodName,
-    args,
-  );
-};
-
-type SyncDownOverload = {
-  (
-    storeConfig: StoreConfig | boolean,
-    target: SyncDownTarget,
-    soupName: string,
-    options: SyncOptions,
-    syncName: string,
-    successCB: ExecSuccessCallback<SyncEvent>,
-    errorCB: ExecErrorCallback,
-  ): void;
-  (
-    storeConfig: StoreConfig | boolean,
-    target: SyncDownTarget,
-    soupName: string,
-    options: SyncOptions,
-    successCB: ExecSuccessCallback<SyncEvent>,
-    errorCB: ExecErrorCallback,
-  ): void;
-};
-
-export const syncDown: SyncDownOverload = (
-  storeConfig: StoreConfig | boolean,
-  target: SyncDownTarget,
-  soupName: string,
-  options: SyncOptions,
-  x: string | ExecSuccessCallback<SyncEvent>,
-  y: ExecSuccessCallback<SyncEvent> | ExecErrorCallback,
-  z?: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-
-  let syncName: string | undefined;
-  let successCB: ExecSuccessCallback<SyncEvent>;
-  let errorCB: ExecErrorCallback;
-
-  // syncName optional (new in 6.0)
-  if (typeof x === "function") {
-    syncName = undefined;
-    successCB = x;
-    errorCB = y as ExecErrorCallback;
-  } else {
-    syncName = x;
-    successCB = y as ExecSuccessCallback<SyncEvent>;
-    errorCB = z as ExecErrorCallback;
-  }
-
-  exec<SyncEvent>(successCB, errorCB, "syncDown", {
-    target: target,
-    soupName: soupName,
-    options: options,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-    syncName: syncName,
-  });
-};
-
-export const reSync = (
-  storeConfig: StoreConfig | boolean,
-  syncIdOrName: string | number,
-  successCB: ExecSuccessCallback<SyncEvent>,
-  errorCB: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-  exec(successCB, errorCB, "reSync", {
-    syncId: typeof syncIdOrName === "string" ? null : syncIdOrName,
-    syncName: typeof syncIdOrName === "string" ? syncIdOrName : null,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-  });
-};
-
-export const cleanResyncGhosts = (
-  storeConfig: StoreConfig | boolean,
-  syncId: number,
-  successCB: ExecSuccessCallback<number>,
-  errorCB: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-  exec(successCB, errorCB, "cleanResyncGhosts", {
-    syncId: syncId,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-  });
-};
-
-type SyncUpOverload = {
-  (
-    storeConfig: StoreConfig | boolean,
-    target: SyncUpTarget,
-    soupName: string,
-    options: SyncOptions,
-    syncName: string,
-    successCB: ExecSuccessCallback<SyncEvent>,
-    errorCB: ExecErrorCallback,
-  ): void;
-  (
-    storeConfig: StoreConfig | boolean,
-    target: SyncUpTarget,
-    soupName: string,
-    options: SyncOptions,
-    successCB: ExecSuccessCallback<SyncEvent>,
-    errorCB: ExecErrorCallback,
-  ): void;
-};
-
-export const syncUp: SyncUpOverload = (
-  storeConfig: StoreConfig | boolean,
-  target: SyncUpTarget,
-  soupName: string,
-  options: SyncOptions,
-  x: string | ExecSuccessCallback<SyncEvent>,
-  y: ExecSuccessCallback<SyncEvent> | ExecErrorCallback,
-  z?: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-
-  let syncName: string | undefined;
-  let successCB: ExecSuccessCallback<SyncEvent>;
-  let errorCB: ExecErrorCallback;
-
-  // syncName optional (new in 6.0)
-  if (typeof x === "function") {
-    syncName = undefined;
-    successCB = x;
-    errorCB = y as ExecErrorCallback;
-  } else {
-    syncName = x;
-    successCB = y as ExecSuccessCallback<SyncEvent>;
-    errorCB = z as ExecErrorCallback;
-  }
-
-  exec(successCB, errorCB, "syncUp", {
-    target: target,
-    soupName: soupName,
-    options: options,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-    syncName: syncName,
-  });
-};
-
-export const getSyncStatus = (
-  storeConfig: StoreConfig | boolean,
-  syncIdOrName: string,
-  successCB: ExecSuccessCallback<SyncStatus>,
-  errorCB: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-  exec(successCB, errorCB, "getSyncStatus", {
-    syncId: typeof syncIdOrName === "string" ? null : syncIdOrName,
-    syncName: typeof syncIdOrName === "string" ? syncIdOrName : null,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-  });
-};
-
-export const deleteSync = (
-  storeConfig: StoreConfig | boolean,
-  syncIdOrName: string | number,
-  successCB: ExecSuccessCallback<unknown>,
-  errorCB: ExecErrorCallback,
-): void => {
-  storeConfig = checkFirstArg(storeConfig);
-  exec(successCB, errorCB, "deleteSync", {
-    syncId: typeof syncIdOrName === "string" ? null : syncIdOrName,
-    syncName: typeof syncIdOrName === "string" ? syncIdOrName : null,
-    isGlobalStore: storeConfig.isGlobalStore,
-    storeName: storeConfig.storeName,
-  });
-};
-
-export const MERGE_MODE = {
-  OVERWRITE: "OVERWRITE",
-  LEAVE_IF_CHANGED: "LEAVE_IF_CHANGED",
-} as const;
