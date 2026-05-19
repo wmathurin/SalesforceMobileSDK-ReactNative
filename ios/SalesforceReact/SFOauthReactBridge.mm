@@ -75,10 +75,11 @@ RCT_EXPORT_METHOD(logoutCurrentUser:(NSDictionary *)args callback:(RCTResponseSe
 
 RCT_EXPORT_METHOD(authenticate:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
 {
-    __weak typeof(self) weakSelf = self;
+    // Use __typeof__ instead of typeof for Objective-C++ compatibility.
+    __weak __typeof__(self) weakSelf = self;
     [SFSDKReactLogger d:[self class] format:@"authenticate: arguments: %@", args];
     dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
+        __strong __typeof__(weakSelf) strongSelf = weakSelf;
         [[SFUserAccountManager sharedInstance] loginWithCompletion:^(SFOAuthInfo *authInfo,SFUserAccount *userAccount) {
             [SFUserAccountManager sharedInstance].currentUser  =  userAccount;
             [strongSelf sendAuthCredentials:callback];

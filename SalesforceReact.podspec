@@ -23,6 +23,11 @@ Pod::Spec.new do |s|
       salesforcereact.prefix_header_contents = '#import "SFSDKReactLogger.h"'
       salesforcereact.requires_arc = true
 
+      # Set C++20 standard required for new architecture TurboModule support.
+      salesforcereact.pod_target_xcconfig = {
+        'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20'
+      }
+
       # Pulls in dependencies needed for the new architecture (Codegen-generated
       # spec headers, ReactCommon, JSI, etc.). Defined by React Native's
       # react_native_pods.rb. This is a no-op when new arch is disabled at the

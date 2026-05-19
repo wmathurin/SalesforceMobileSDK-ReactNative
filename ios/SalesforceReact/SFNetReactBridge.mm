@@ -24,7 +24,14 @@
 
 #import "SFNetReactBridge.h"
 #import <React/RCTUtils.h>
-@import SalesforceSDKCore;
+// NOTE: We use individual #import directives instead of @import here because
+// @import inside an Objective-C++ (.mm) translation unit pulls C++ module
+// support that ends up duplicating libfmt / RCT-Folly symbols across .o files.
+#import <SalesforceSDKCore/SFRestAPI.h>
+#import <SalesforceSDKCore/SFRestRequest.h>
+#import <SalesforceSDKCore/NSDictionary+SFAdditions.h>
+#import <SalesforceSDKCore/NSURLResponse+SFAdditions.h>
+#import <SalesforceSDKCore/SalesforceSDKCore-Swift.h>
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <ReactCommon/RCTTurboModule.h>
@@ -104,10 +111,10 @@ RCT_EXPORT_METHOD(sendRequest:(NSDictionary *)argsDict callback:(RCTResponseSend
     }
     SFRestAPI *restApiInstance = doesNotRequireAuthentication ? [SFRestAPI sharedGlobalInstance] : [SFRestAPI sharedInstance];
 
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     [restApiInstance sendRequest:request
                                       failureBlock:^(id response, NSError *e, NSURLResponse *rawResponse) {
-                                          __strong typeof(self) strongSelf = weakSelf;
+                                          __strong __typeof__(self) strongSelf = weakSelf;
                                           NSMutableDictionary *responseDictionary = [[rawResponse sfsdk_asDictionary] mutableCopy];
                                           responseDictionary[@"body"] = [strongSelf serializableResponse:response rawResponse:rawResponse];
                                           NSMutableDictionary *errorDictionary = [NSMutableDictionary new];
@@ -127,7 +134,7 @@ RCT_EXPORT_METHOD(sendRequest:(NSDictionary *)argsDict callback:(RCTResponseSend
                                       }
                                       // Some response
                                       else if (response) {
-                                          __strong typeof(self) strongSelf = weakSelf;
+                                          __strong __typeof__(self) strongSelf = weakSelf;
                                           result = [strongSelf serializableResponse:response rawResponse:rawResponse];
                                       }
                                       // No response
