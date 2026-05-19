@@ -23,12 +23,16 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-import { NativeModules } from "react-native";
+import { NativeModules, TurboModuleRegistry } from "react-native";
 import { exec as forceExec, ExecErrorCallback, ExecSuccessCallback } from "./react.force.common";
 import { StoreConfig } from "./react.force.smartstore";
 import { SyncDownTarget, SyncEvent, SyncMethod, SyncOptions, SyncStatus, SyncUpTarget } from "./typings/mobilesync";
 
-const { MobileSyncReactBridge, SFMobileSyncReactBridge } = NativeModules;
+// New architecture: TurboModuleRegistry first, fall back to NativeModules.
+const SFMobileSyncReactBridge =
+  TurboModuleRegistry.get<any>("SFMobileSyncReactBridge") ?? NativeModules.SFMobileSyncReactBridge;
+const MobileSyncReactBridge =
+  TurboModuleRegistry.get<any>("MobileSyncReactBridge") ?? NativeModules.MobileSyncReactBridge;
 
 // If param is a storeconfig return the same storeconfig
 // If param is a boolean, returns a storeconfig object  {'isGlobalStore': boolean}

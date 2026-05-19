@@ -24,10 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from "react-native";
+import { NativeModules, TurboModuleRegistry } from "react-native";
 import { exec as forceExec, ExecErrorCallback, ExecSuccessCallback } from "./react.force.common";
 import { HttpMethod } from "./typings";
-const { SalesforceNetReactBridge, SFNetReactBridge } = NativeModules;
+
+// New architecture: TurboModuleRegistry first, fall back to NativeModules.
+const SFNetReactBridge =
+  TurboModuleRegistry.get<any>("SFNetReactBridge") ?? NativeModules.SFNetReactBridge;
+const SalesforceNetReactBridge =
+  TurboModuleRegistry.get<any>("SalesforceNetReactBridge") ??
+  NativeModules.SalesforceNetReactBridge;
 
 var  apiVersion = 'v66.0';
 

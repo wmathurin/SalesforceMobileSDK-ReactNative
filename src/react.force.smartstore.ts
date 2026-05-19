@@ -24,11 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from "react-native";
+import { NativeModules, TurboModuleRegistry } from "react-native";
 import { exec as forceExec, ExecErrorCallback, ExecSuccessCallback, safeJSONparse } from "./react.force.common";
 import { QuerySpecType, StoreOrder } from "./typings";
 import { SmartStoreMethod } from "./typings/smartstore";
-const { SmartStoreReactBridge, SFSmartStoreReactBridge } = NativeModules;
+
+// New architecture: TurboModuleRegistry first, fall back to NativeModules.
+const SFSmartStoreReactBridge =
+  TurboModuleRegistry.get<any>("SFSmartStoreReactBridge") ?? NativeModules.SFSmartStoreReactBridge;
+const SmartStoreReactBridge =
+  TurboModuleRegistry.get<any>("SmartStoreReactBridge") ?? NativeModules.SmartStoreReactBridge;
 
 const exec = <T>(
   successCB: ExecSuccessCallback<T>,
