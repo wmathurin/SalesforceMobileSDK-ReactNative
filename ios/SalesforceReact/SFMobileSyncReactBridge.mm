@@ -31,6 +31,10 @@
 #import <MobileSync/SFMobileSyncSyncManager.h>
 #import <MobileSync/SFSyncState.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactCommon/RCTTurboModule.h>
+#endif
+
 // Private constants
 NSString * const kSyncSoupNameArg = @"soupName";
 NSString * const kSyncTargetArg = @"target";
@@ -233,5 +237,12 @@ RCT_EXPORT_METHOD(syncUp:(NSDictionary *)args callback:(RCTResponseSenderBlock)c
     }
     return storeName;
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSFMobileSyncReactBridgeSpecJSI>(params);
+}
+#endif
 
 @end

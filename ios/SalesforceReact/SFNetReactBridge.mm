@@ -26,6 +26,10 @@
 #import <React/RCTUtils.h>
 @import SalesforceSDKCore;
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactCommon/RCTTurboModule.h>
+#endif
+
 
 // Private constants
 static NSString * const kMethodArg       = @"method";
@@ -149,5 +153,12 @@ RCT_EXPORT_METHOD(sendRequest:(NSDictionary *)argsDict callback:(RCTResponseSend
     }
     return result;
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSFNetReactBridgeSpecJSI>(params);
+}
+#endif
 
 @end
