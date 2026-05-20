@@ -7,29 +7,19 @@
 import type { TurboModule } from "react-native";
 import { TurboModuleRegistry } from "react-native";
 
-/**
- * TurboModule spec for OAuth bridge.
- *
- * Maps to:
- * - iOS native module name: "SFOauthReactBridge"
- * - Android native module name: "SalesforceOauthReactBridge"
- *
- * All methods use the legacy Node-style callback `(error, result)`
- * to preserve the existing JS-side `react.force.common#exec` contract.
- */
 export interface Spec extends TurboModule {
   getAuthCredentials(
-    args: Object,
+    args: {},
     callback: (error: Object | null, result: Object | null) => void,
   ): void;
 
   authenticate(
-    args: Object,
+    args: {},
     callback: (error: Object | null, result: Object | null) => void,
   ): void;
 
   logoutCurrentUser(
-    args: Object,
+    args: {},
     callback: (error: Object | null, result: Object | null) => void,
   ): void;
 }

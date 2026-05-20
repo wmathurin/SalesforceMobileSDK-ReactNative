@@ -7,20 +7,23 @@
 import type { TurboModule } from "react-native";
 import { TurboModuleRegistry } from "react-native";
 
-/**
- * TurboModule spec for MobileSync bridge.
- *
- * Maps to:
- * - iOS native module name: "SFMobileSyncReactBridge"
- * - Android native module name: "MobileSyncReactBridge"
- */
+type SyncArgs = {
+  isGlobalStore?: boolean;
+  storeName?: string;
+  soupName?: string;
+  target?: Object;
+  options?: Object;
+  syncName?: string;
+  syncId?: number;
+};
+
 export interface Spec extends TurboModule {
-  syncDown(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
-  syncUp(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
-  reSync(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
-  getSyncStatus(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
-  deleteSync(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
-  cleanResyncGhosts(args: Object, callback: (error: Object | null, result: Object | null) => void): void;
+  syncDown(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
+  syncUp(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
+  reSync(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
+  getSyncStatus(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
+  deleteSync(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
+  cleanResyncGhosts(args: SyncArgs, callback: (error: Object | null, result: Object | null) => void): void;
 }
 
 export default TurboModuleRegistry.get<Spec>("SFMobileSyncReactBridge");
