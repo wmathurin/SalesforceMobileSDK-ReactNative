@@ -418,19 +418,23 @@ While the JavaScript API is identical on both platforms, there are implementatio
 | smartstore | `SFSmartStoreReactBridge` | `SmartStoreReactBridge` |
 | mobilesync | `SFMobileSyncReactBridge` | `MobileSyncReactBridge` |
 
-### Callback Signature
+### Callback Signature (Unified)
 
-**iOS**: Single callback with `(error, result)` tuple
+Both platforms now use the same single-callback pattern with `(error, result)`:
+
+**iOS** (Objective-C):
 ```objective-c
 callback(@[[NSNull null], result]); // success
 callback(@[error, [NSNull null]]);  // error
 ```
 
-**Android**: Separate success and error callbacks
-```java
-successCallback.invoke(result.toString());  // success
-errorCallback.invoke(error.getMessage());   // error
+**Android** (Kotlin):
+```kotlin
+ReactBridgeHelper.invokeSuccess(callback, result)  // invokes callback(null, resultString)
+ReactBridgeHelper.invokeError(callback, error)     // invokes callback(errorMessage)
 ```
+
+The JavaScript bridge function handles both platforms with one unified code path.
 
 ### Data Serialization
 
