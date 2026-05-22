@@ -41,6 +41,14 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "codegenConfig": {
+    "name": "RNSalesforceReactSpec",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.salesforce.androidsdk.reactnative.generated"
+    }
+  },
   "scripts": {
     "build": "tsc --build",
     "prepublish": "npm run build"

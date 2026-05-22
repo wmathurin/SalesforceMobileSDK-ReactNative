@@ -24,10 +24,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { NativeModules } from "react-native";
+import { NativeModules, TurboModuleRegistry } from "react-native";
 import { exec as forceExec, ExecSuccessCallback, ExecErrorCallback } from "./react.force.common";
 import { OAuthMethod, UserAccount } from "./typings/oauth";
-const { SalesforceOauthReactBridge, SFOauthReactBridge } = NativeModules;
+
+// New architecture: TurboModuleRegistry returns the module if registered as a
+// TurboModule. Falls back to NativeModules (legacy bridge / interop mode).
+const SFOauthReactBridge =
+  TurboModuleRegistry.get<any>("SFOauthReactBridge") ?? NativeModules.SFOauthReactBridge;
+const SalesforceOauthReactBridge =
+  TurboModuleRegistry.get<any>("SalesforceOauthReactBridge") ??
+  NativeModules.SalesforceOauthReactBridge;
 
 const exec = <T>(
   successCB: ExecSuccessCallback<T>,

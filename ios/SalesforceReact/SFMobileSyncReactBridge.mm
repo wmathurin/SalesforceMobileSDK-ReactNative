@@ -31,6 +31,10 @@
 #import <MobileSync/SFMobileSyncSyncManager.h>
 #import <MobileSync/SFSyncState.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactCommon/RCTTurboModule.h>
+#endif
+
 // Private constants
 NSString * const kSyncSoupNameArg = @"soupName";
 NSString * const kSyncTargetArg = @"target";
@@ -93,7 +97,7 @@ RCT_EXPORT_METHOD(syncDown:(NSDictionary *)args callback:(RCTResponseSenderBlock
     NSString *soupName = [args sfsdk_nonNullObjectForKey:kSyncSoupNameArg];
     SFSyncOptions *options = [SFSyncOptions newFromDict:[args sfsdk_nonNullObjectForKey:kSyncOptionsArg]];
     SFSyncDownTarget *target = [SFSyncDownTarget newFromDict:[args sfsdk_nonNullObjectForKey:kSyncTargetArg]];
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     NSError* error = nil;
     SFSyncState* sync = [[self getSyncManagerInst:args] syncDownWithTarget:target options:options soupName:soupName syncName:syncName updateBlock:^(SFSyncState* sync) {
         [weakSelf handleSyncUpdate:sync withArgs:args callback:callback];
@@ -114,14 +118,14 @@ RCT_EXPORT_METHOD(reSync:(NSDictionary *)args callback:(RCTResponseSenderBlock)c
     NSError* error = nil;
     if (syncId) {
         [SFSDKReactLogger d:[self class] format:@"reSync with sync id: %@", syncId];
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof__(self) weakSelf = self;
         sync = [[self getSyncManagerInst:args] reSync:syncId updateBlock:^(SFSyncState *sync) {
             [weakSelf handleSyncUpdate:sync withArgs:args callback:callback];
         } error:&error];
     }
     else if (syncName) {
         [SFSDKReactLogger d:[self class] format:@"reSync with sync name: %@", syncName];
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof__(self) weakSelf = self;
         sync = [[self getSyncManagerInst:args] reSyncByName:syncName updateBlock:^(SFSyncState *sync) {
             [weakSelf handleSyncUpdate:sync withArgs:args callback:callback];
         } error:&error];
@@ -140,7 +144,7 @@ RCT_EXPORT_METHOD(cleanResyncGhosts:(NSDictionary *)args callback:(RCTResponseSe
 {
     NSNumber* syncId = (NSNumber*) [args sfsdk_nonNullObjectForKey:kSyncIdArg];
     [SFSDKReactLogger d:[self class] format:@"cleanResyncGhosts with sync id: %@", syncId];
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     NSError* error = nil;
     [[self getSyncManagerInst:args] cleanResyncGhosts:syncId completionStatusBlock:^void(SFSyncStateStatus syncStatus, NSUInteger numRecords){
         [weakSelf handleCleanReSyncGhosts:syncStatus numRecords:numRecords callback:callback];
@@ -158,7 +162,7 @@ RCT_EXPORT_METHOD(syncUp:(NSDictionary *)args callback:(RCTResponseSenderBlock)c
     NSString *soupName = [args sfsdk_nonNullObjectForKey:kSyncSoupNameArg];
     SFSyncOptions *options = [SFSyncOptions newFromDict:[args sfsdk_nonNullObjectForKey:kSyncOptionsArg]];
     SFSyncUpTarget *target = [SFSyncUpTarget newFromDict:[args sfsdk_nonNullObjectForKey:kSyncTargetArg]];
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     NSError* error = nil;
     SFSyncState* sync = [[self getSyncManagerInst:args] syncUpWithTarget:target options:options soupName:soupName syncName:syncName updateBlock:^(SFSyncState* sync) {
         [weakSelf handleSyncUpdate:sync withArgs:args callback:callback];
@@ -233,5 +237,12 @@ RCT_EXPORT_METHOD(syncUp:(NSDictionary *)args callback:(RCTResponseSenderBlock)c
     }
     return storeName;
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSFMobileSyncReactBridgeSpecJSI>(params);
+}
+#endif
 
 @end

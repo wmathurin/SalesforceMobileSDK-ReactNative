@@ -27,6 +27,10 @@
 #import <React/RCTUtils.h>
 #import <SalesforceSDKCore/NSDictionary+SFAdditions.h>
 #import <SalesforceSDKCommon/SFJsonUtils.h>
+
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <ReactCommon/RCTTurboModule.h>
+#endif
 #import <SmartStore/SFStoreCursor.h>
 #import <SmartStore/SFSmartStore.h>
 #import <SmartStore/SFQuerySpec.h>
@@ -431,5 +435,12 @@ RCT_EXPORT_METHOD(removeAllStores:(NSDictionary *)argsDict callback:(RCTResponse
     NSString *internalCursorId = [NSString stringWithFormat:@"%@_%@_%d",storeName,cursorId,isGlobal];
     return internalCursorId;
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeSFSmartStoreReactBridgeSpecJSI>(params);
+}
+#endif
 
 @end
