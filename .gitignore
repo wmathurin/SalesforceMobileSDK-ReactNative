@@ -22,3 +22,7 @@ androidTests/android/app/build/
 
 androidTests/android/.kotlin/
 androidTests/android/app/.cxx/
+
+# Android library build output
+android/.gradle/
+android/build/
