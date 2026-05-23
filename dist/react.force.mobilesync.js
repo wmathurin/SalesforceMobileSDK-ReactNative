@@ -1,5 +1,4 @@
 "use strict";
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MERGE_MODE = exports.deleteSync = exports.getSyncStatus = exports.syncUp = exports.cleanResyncGhosts = exports.reSync = exports.syncDown = void 0;
 /*
@@ -30,8 +29,9 @@ exports.MERGE_MODE = exports.deleteSync = exports.getSyncStatus = exports.syncUp
 const react_native_1 = require("react-native");
 const react_force_common_1 = require("./react.force.common");
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFMobileSyncReactBridge = (_a = react_native_1.TurboModuleRegistry.get("SFMobileSyncReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFMobileSyncReactBridge;
-const MobileSyncReactBridge = (_b = react_native_1.TurboModuleRegistry.get("MobileSyncReactBridge")) !== null && _b !== void 0 ? _b : react_native_1.NativeModules.MobileSyncReactBridge;
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFMobileSyncReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("SFMobileSyncReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFMobileSyncReactBridge; };
+const getMobileSyncReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("MobileSyncReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.MobileSyncReactBridge; };
 // If param is a storeconfig return the same storeconfig
 // If param is a boolean, returns a storeconfig object  {'isGlobalStore': boolean}
 // Otherwise, returns a default storeconfig object
@@ -48,7 +48,7 @@ const checkFirstArg = (arg) => {
     return { isGlobalStore: isGlobalStore };
 };
 const exec = (successCB, errorCB, methodName, args) => {
-    (0, react_force_common_1.exec)("SFMobileSyncReactBridge", "MobileSyncReactBridge", SFMobileSyncReactBridge, MobileSyncReactBridge, successCB, errorCB, methodName, args);
+    (0, react_force_common_1.exec)("SFMobileSyncReactBridge", "MobileSyncReactBridge", getSFMobileSyncReactBridge(), getMobileSyncReactBridge(), successCB, errorCB, methodName, args);
 };
 const syncDown = (storeConfig, target, soupName, options, x, y, z) => {
     storeConfig = checkFirstArg(storeConfig);

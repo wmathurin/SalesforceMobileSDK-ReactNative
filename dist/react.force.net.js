@@ -24,14 +24,17 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.collectionDelete = exports.collectionRetrieve = exports.collectionUpsert = exports.collectionUpdate = exports.collectionCreate = exports.getAttachment = exports.search = exports.queryMore = exports.query = exports.del = exports.update = exports.upsert = exports.retrieve = exports.create = exports.describeLayout = exports.describe = exports.metadata = exports.describeGlobal = exports.resources = exports.versions = exports.sendRequest = exports.getApiVersion = exports.setApiVersion = void 0;
 const react_native_1 = require("react-native");
 const react_force_common_1 = require("./react.force.common");
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFNetReactBridge = (_a = react_native_1.TurboModuleRegistry.get("SFNetReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFNetReactBridge;
-const SalesforceNetReactBridge = (_b = react_native_1.TurboModuleRegistry.get("SalesforceNetReactBridge")) !== null && _b !== void 0 ? _b : react_native_1.NativeModules.SalesforceNetReactBridge;
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFNetReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("SFNetReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFNetReactBridge; };
+const getSalesforceNetReactBridge = () => {
+    var _a;
+    return (_a = react_native_1.TurboModuleRegistry.get("SalesforceNetReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SalesforceNetReactBridge;
+};
 var apiVersion = 'v66.0';
 /**
  * Set apiVersion to be used
@@ -65,7 +68,7 @@ const sendRequest = (endPoint, path, successCB, errorCB, method, payload, header
         returnBinary,
         doesNotRequireAuthentication,
     };
-    (0, react_force_common_1.exec)("SFNetReactBridge", "SalesforceNetReactBridge", SFNetReactBridge, SalesforceNetReactBridge, successCB, errorCB, "sendRequest", args);
+    (0, react_force_common_1.exec)("SFNetReactBridge", "SalesforceNetReactBridge", getSFNetReactBridge(), getSalesforceNetReactBridge(), successCB, errorCB, "sendRequest", args);
 };
 exports.sendRequest = sendRequest;
 /**

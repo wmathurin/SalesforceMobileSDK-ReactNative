@@ -24,16 +24,16 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeAllStores = exports.removeAllGlobalStores = exports.removeStore = exports.getAllGlobalStores = exports.getAllStores = exports.closeCursor = exports.moveCursorToPreviousPage = exports.moveCursorToNextPage = exports.moveCursorToPageIndex = exports.removeFromSoup = exports.upsertSoupEntriesWithExternalId = exports.upsertSoupEntries = exports.retrieveSoupEntries = exports.runSmartQuery = exports.querySoup = exports.soupExists = exports.clearSoup = exports.reIndexSoup = exports.alterSoup = exports.getSoupIndexSpecs = exports.removeSoup = exports.registerSoup = exports.getDatabaseSize = exports.buildSmartQuerySpec = exports.buildMatchQuerySpec = exports.buildLikeQuerySpec = exports.buildRangeQuerySpec = exports.buildExactQuerySpec = exports.buildAllQuerySpec = exports.StoreCursor = exports.QuerySpec = exports.SoupIndexSpec = exports.StoreConfig = void 0;
 const react_native_1 = require("react-native");
 const react_force_common_1 = require("./react.force.common");
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFSmartStoreReactBridge = (_a = react_native_1.TurboModuleRegistry.get("SFSmartStoreReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFSmartStoreReactBridge;
-const SmartStoreReactBridge = (_b = react_native_1.TurboModuleRegistry.get("SmartStoreReactBridge")) !== null && _b !== void 0 ? _b : react_native_1.NativeModules.SmartStoreReactBridge;
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFSmartStoreReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("SFSmartStoreReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFSmartStoreReactBridge; };
+const getSmartStoreReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("SmartStoreReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SmartStoreReactBridge; };
 const exec = (successCB, errorCB, methodName, args) => {
-    (0, react_force_common_1.exec)("SFSmartStoreReactBridge", "SmartStoreReactBridge", SFSmartStoreReactBridge, SmartStoreReactBridge, successCB, errorCB, methodName, args);
+    (0, react_force_common_1.exec)("SFSmartStoreReactBridge", "SmartStoreReactBridge", getSFSmartStoreReactBridge(), getSmartStoreReactBridge(), successCB, errorCB, methodName, args);
 };
 /**
  * StoreConfig class

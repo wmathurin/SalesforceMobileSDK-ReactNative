@@ -30,9 +30,10 @@ import { QuerySpecType, StoreOrder } from "./typings";
 import { SmartStoreMethod } from "./typings/smartstore";
 
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFSmartStoreReactBridge =
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFSmartStoreReactBridge = () =>
   TurboModuleRegistry.get<any>("SFSmartStoreReactBridge") ?? NativeModules.SFSmartStoreReactBridge;
-const SmartStoreReactBridge =
+const getSmartStoreReactBridge = () =>
   TurboModuleRegistry.get<any>("SmartStoreReactBridge") ?? NativeModules.SmartStoreReactBridge;
 
 const exec = <T>(
@@ -44,8 +45,8 @@ const exec = <T>(
   forceExec(
     "SFSmartStoreReactBridge",
     "SmartStoreReactBridge",
-    SFSmartStoreReactBridge,
-    SmartStoreReactBridge,
+    getSFSmartStoreReactBridge(),
+    getSmartStoreReactBridge(),
     successCB,
     errorCB,
     methodName,

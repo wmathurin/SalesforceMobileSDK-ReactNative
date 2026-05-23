@@ -24,17 +24,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = exports.getAuthCredentials = exports.authenticate = void 0;
 const react_native_1 = require("react-native");
 const react_force_common_1 = require("./react.force.common");
-// New architecture: TurboModuleRegistry returns the module if registered as a
-// TurboModule. Falls back to NativeModules (legacy bridge / interop mode).
-const SFOauthReactBridge = (_a = react_native_1.TurboModuleRegistry.get("SFOauthReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFOauthReactBridge;
-const SalesforceOauthReactBridge = (_b = react_native_1.TurboModuleRegistry.get("SalesforceOauthReactBridge")) !== null && _b !== void 0 ? _b : react_native_1.NativeModules.SalesforceOauthReactBridge;
+// Lazy module lookup: modules may not be available at import time in bridgeless mode.
+const getSFOauthReactBridge = () => { var _a; return (_a = react_native_1.TurboModuleRegistry.get("SFOauthReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SFOauthReactBridge; };
+const getSalesforceOauthReactBridge = () => {
+    var _a;
+    return (_a = react_native_1.TurboModuleRegistry.get("SalesforceOauthReactBridge")) !== null && _a !== void 0 ? _a : react_native_1.NativeModules.SalesforceOauthReactBridge;
+};
 const exec = (successCB, errorCB, methodName, args) => {
-    (0, react_force_common_1.exec)("SFOauthReactBridge", "SalesforceOauthReactBridge", SFOauthReactBridge, SalesforceOauthReactBridge, successCB, errorCB, methodName, args);
+    (0, react_force_common_1.exec)("SFOauthReactBridge", "SalesforceOauthReactBridge", getSFOauthReactBridge(), getSalesforceOauthReactBridge(), successCB, errorCB, methodName, args);
 };
 /**
  * Initiates the authentication process, with the given app configuration.

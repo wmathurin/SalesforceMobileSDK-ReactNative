@@ -29,9 +29,10 @@ import { StoreConfig } from "./react.force.smartstore";
 import { SyncDownTarget, SyncEvent, SyncMethod, SyncOptions, SyncStatus, SyncUpTarget } from "./typings/mobilesync";
 
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFMobileSyncReactBridge =
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFMobileSyncReactBridge = () =>
   TurboModuleRegistry.get<any>("SFMobileSyncReactBridge") ?? NativeModules.SFMobileSyncReactBridge;
-const MobileSyncReactBridge =
+const getMobileSyncReactBridge = () =>
   TurboModuleRegistry.get<any>("MobileSyncReactBridge") ?? NativeModules.MobileSyncReactBridge;
 
 // If param is a storeconfig return the same storeconfig
@@ -60,8 +61,8 @@ const exec = <T>(
   forceExec(
     "SFMobileSyncReactBridge",
     "MobileSyncReactBridge",
-    SFMobileSyncReactBridge,
-    MobileSyncReactBridge,
+    getSFMobileSyncReactBridge(),
+    getMobileSyncReactBridge(),
     successCB,
     errorCB,
     methodName,
