@@ -13,11 +13,6 @@ rootProject.name = 'SalesforceReactTests'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 
-// Include react-native-force android library (autolinked, but needs composite build
-// so its MobileSync dependency can be resolved from the Android SDK clone)
-include ':react-native-force'
-project(':react-native-force').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-force/android')
-
 // Include Android SDK libraries from mobile_sdk clone
 def androidSdkRoot = new File(rootProject.projectDir, '../mobile_sdk/SalesforceMobileSDK-Android')
 if (androidSdkRoot.exists()) {

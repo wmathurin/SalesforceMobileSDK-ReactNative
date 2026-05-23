@@ -55,7 +55,8 @@ kotlin {
 }
 
 dependencies {
-    implementation(project(":react-native-force"))
+    // SalesforceReact is provided by react-native-force autolinking
+    implementation("com.facebook.react:react-android:0.81.5")
     implementation("com.facebook.react:react-android:0.81.5")
     implementation("com.facebook.react:hermes-android:0.81.5")
 

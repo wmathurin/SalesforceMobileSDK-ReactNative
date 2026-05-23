@@ -62,6 +62,11 @@ public class ReactNativeTestHost extends DefaultReactNativeHost {
         return packages;
     }
 
+    // Exposed for debugging
+    public List<ReactPackage> debugGetPackages() {
+        return getPackages();
+    }
+
     @NonNull
     @Override
     protected String getJSMainModuleName() {
