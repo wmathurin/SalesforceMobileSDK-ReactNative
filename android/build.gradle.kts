@@ -1,0 +1,47 @@
+plugins {
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "com.salesforce.androidsdk.reactnative"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 28
+    }
+
+    sourceSets {
+        getByName("main") {
+            manifest.srcFile("AndroidManifest.xml")
+            java.srcDirs("src/main/java")
+            res.srcDirs("res")
+            assets.srcDirs("assets")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+        aidl = true
+    }
+
+    packaging {
+        resources {
+            excludes += setOf("META-INF/LICENSE", "META-INF/LICENSE.txt", "META-INF/DEPENDENCIES", "META-INF/NOTICE")
+        }
+    }
+
+    lint {
+        abortOnError = false
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+dependencies {
+    api("com.salesforce.mobilesdk:MobileSync:14.0.0")
+    api("com.facebook.react:react-android:0.81.5")
+    implementation("androidx.core:core-ktx:1.18.0")
+}
