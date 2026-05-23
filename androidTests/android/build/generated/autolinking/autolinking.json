@@ -13,7 +13,19 @@
           "configurations": [],
           "scriptPhases": []
         },
-        "android": null
+        "android": {
+          "sourceDir": "/Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/androidTests/node_modules/react-native-force/android",
+          "packageImportPath": "import com.salesforce.androidsdk.reactnative.app.SalesforceReactPackage;",
+          "packageInstance": "new SalesforceReactPackage()",
+          "buildTypes": [],
+          "libraryName": "RNSalesforceReactSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/androidTests/node_modules/react-native-force/android/src/main/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
       }
     }
   },
