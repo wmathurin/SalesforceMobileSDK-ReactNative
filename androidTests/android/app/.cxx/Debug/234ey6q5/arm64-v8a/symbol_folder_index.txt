@@ -1,0 +1,1 @@
+/Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/androidTests/android/app/build/intermediates/cxx/Debug/234ey6q5/obj/arm64-v8a

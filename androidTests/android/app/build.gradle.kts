@@ -1,6 +1,11 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.facebook.react")
+}
+
+react {
+    autolinkLibrariesWithApp()
 }
 
 android {
