@@ -34,8 +34,6 @@ import com.facebook.react.ReactActivityDelegate;
 
 import javax.annotation.Nullable;
 
-import static com.salesforce.androidsdk.reactnative.ReactTestCase.TEST_NAME;
-
 /**
  * Subclass of ReactActivityDelegate used for testing
  *
@@ -44,6 +42,7 @@ import static com.salesforce.androidsdk.reactnative.ReactTestCase.TEST_NAME;
  */
 public class ReactActivityTestDelegate extends ReactActivityDelegate {
 
+    public static final String TEST_NAME = "testName";
     public static final String TEST_PREFIX = "test";
 
     private Activity activity;

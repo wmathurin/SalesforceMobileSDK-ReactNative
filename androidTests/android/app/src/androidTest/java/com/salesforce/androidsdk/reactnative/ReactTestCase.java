@@ -40,6 +40,8 @@ import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiObjectNotFoundException;
 import androidx.test.uiautomator.UiSelector;
 
+import static com.salesforce.androidsdk.reactnative.util.ReactActivityTestDelegate.TEST_NAME;
+
 import com.salesforce.androidsdk.reactnative.util.ReactTestActivity;
 import com.salesforce.androidsdk.reactnative.util.TestResult;
 
@@ -50,7 +52,6 @@ import org.junit.runner.RunWith;
 public abstract class ReactTestCase {
 
     private static final long TEST_TIMEOUT_SECONDS = 120;
-    public static final String TEST_NAME = "testName";
 
     // Dismissing system dialog if shown
     // See https://stackoverflow.com/questions/39457305/android-testing-waited-for-the-root-of-the-view-hierarchy-to-have-window-focus

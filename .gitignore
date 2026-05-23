@@ -14,3 +14,7 @@ androidTests/android/app/src/main/assets/index.android.bundle
 androidTests/android/app/src/main/assets/drawable-mdpi/
 androidTests/mobile_sdk/
 
+
+# Gradle build output
+androidTests/android/.gradle/
+androidTests/android/app/build/
