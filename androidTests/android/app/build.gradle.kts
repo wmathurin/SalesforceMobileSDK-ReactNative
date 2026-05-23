@@ -55,7 +55,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("com.salesforce.mobilesdk:SalesforceReact")
+    implementation(project(":react-native-force"))
     implementation("com.facebook.react:react-android:0.81.5")
     implementation("com.facebook.react:hermes-android:0.81.5")
 

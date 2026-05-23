@@ -1,7 +1,5 @@
-plugins {
-    id("com.android.library") version "8.12.0"
-    id("org.jetbrains.kotlin.android") version "2.3.20"
-}
+apply(plugin = "com.android.library")
+apply(plugin = "org.jetbrains.kotlin.android")
 
 android {
     namespace = "com.salesforce.androidsdk.reactnative"
