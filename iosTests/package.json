@@ -12,7 +12,7 @@
     "create-react-class": "^15.7.0",
     "react": "19.1.0",
     "react-native": "0.81.5",
-    "react-native-force": "git+https://github.com/wmathurin/SalesforceMobileSDK-ReactNative.git#rn-migration"
+    "react-native-force": "git+https://github.com/wmathurin/SalesforceMobileSDK-ReactNative.git#rn-android-in-react-native"
   },
   "devDependencies": {
     "chai": "4.4.1",
