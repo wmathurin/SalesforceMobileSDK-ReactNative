@@ -6,3 +6,11 @@ Podfile.lock
 yarn.lock
 .DS_Store
 
+# Test credentials (contains real Salesforce org credentials)
+shared/test/test_credentials.json
+
+# Android test generated assets
+androidTests/android/app/src/main/assets/index.android.bundle
+androidTests/android/app/src/main/assets/drawable-mdpi/
+androidTests/mobile_sdk/
+
