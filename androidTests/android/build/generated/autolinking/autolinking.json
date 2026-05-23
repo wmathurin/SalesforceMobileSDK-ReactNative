@@ -20,7 +20,7 @@
           "buildTypes": [],
           "libraryName": "RNSalesforceReactSpec",
           "componentDescriptors": [],
-          "cmakeListsPath": "/Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/androidTests/node_modules/react-native-force/android/src/main/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/androidTests/node_modules/react-native-force/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
