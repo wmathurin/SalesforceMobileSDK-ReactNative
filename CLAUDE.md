@@ -7,9 +7,12 @@
 The Salesforce Mobile SDK for React Native provides JavaScript/TypeScript bindings and native bridge modules that enable React Native applications to integrate with the Salesforce platform. This repo contains:
 
 - **JavaScript/TypeScript libraries** (`src/`) - The public API exposed to React Native apps
-- **iOS bridge code** (`ios/SalesforceReact/`) - Objective-C modules that bridge to iOS SDK
+- **iOS bridge code** (`ios/SalesforceReact/`) - Objective-C++ TurboModule bridges to iOS SDK
+- **Android bridge code** (`android/`) - Kotlin TurboModule bridges to Android SDK
 - **iOS tests** (`iosTests/`) - XCTest suite for iOS bridge functionality
+- **Android tests** (`androidTests/`) - AndroidX Test suite for Android bridge functionality
 - **JavaScript tests** (`test/`) - Test suite for JavaScript API
+- **Pre-built codegen** (`android/build/generated/`) - C++ JavaTurboModule wrappers committed to npm package
 
 **Key constraint**: This is a **public SDK**. Every change is visible to external developers. Backward compatibility, deprecation cycles, and semver discipline are non-negotiable.
 
@@ -23,11 +26,11 @@ React Native App
        ├── JavaScript/TypeScript API (src/)
        ├── iOS Bridge (ios/SalesforceReact/)
        │    └── depends on → SalesforceMobileSDK-iOS libraries
-       └── Android Bridge → SalesforceMobileSDK-Android/libs/SalesforceReact
+       └── Android Bridge (android/)
             └── depends on → SalesforceMobileSDK-Android libraries
 ```
 
-**Important**: The Android bridge code lives in `SalesforceMobileSDK-Android/libs/SalesforceReact`, NOT in this repo. This repo only contains iOS bridge code and shared JavaScript/TypeScript.
+**Note**: As of SDK 14.0, the Android bridge code lives in this repo (`android/`), matching the iOS bridge layout. It was previously in `SalesforceMobileSDK-Android/libs/SalesforceReact/`. Both platforms now use unified `SF*` prefix module names (e.g. `SFOauthReactBridge`, `SFNetReactBridge`). React Native autolinking handles module registration automatically.
 
 ## Repository Structure
 
@@ -42,17 +45,25 @@ SalesforceMobileSDK-ReactNative/
 │   ├── react.force.util.ts       # Utilities
 │   ├── react.force.log.ts        # Logging
 │   ├── react.force.test.ts       # Test harness utilities
+│   ├── specs/                    # TurboModule codegen specs
 │   └── typings/                  # TypeScript type definitions
-├── ios/SalesforceReact/          # iOS bridge modules (Objective-C)
-│   ├── SFOauthReactBridge.m      # OAuth bridge
-│   ├── SFNetReactBridge.m        # REST client bridge
-│   ├── SFSmartStoreReactBridge.m # SmartStore bridge
-│   ├── SFMobileSyncReactBridge.m # MobileSync bridge
-│   ├── SFSDKReactLogger.m        # Logging bridge
+├── ios/SalesforceReact/          # iOS bridge modules (Objective-C++)
+│   ├── SFOauthReactBridge.mm     # OAuth bridge
+│   ├── SFNetReactBridge.mm       # REST client bridge
+│   ├── SFSmartStoreReactBridge.mm # SmartStore bridge
+│   ├── SFMobileSyncReactBridge.mm # MobileSync bridge
+│   ├── SFSDKReactLogger.mm       # Logging bridge
 │   └── SalesforceReactSDKManager.m # SDK manager
+├── android/                      # Android bridge modules (Kotlin)
+│   ├── src/main/java/.../bridge/ # Bridge classes (SF*ReactBridge.kt)
+│   ├── src/main/java/.../ui/     # SalesforceReactActivity (bridgeless mode)
+│   ├── src/main/java/.../app/    # SDK manager
+│   └── build.gradle.kts          # Gradle build config
 ├── iosTests/                     # iOS test application
 │   ├── ios/                      # Xcode project with XCTest tests
 │   └── prepareios.js             # Test setup script
+├── androidTests/                 # Android test application (mirrors iosTests/)
+│   └── mobile_sdk/               # Android SDK clone for testing
 ├── test/                         # JavaScript test suite
 │   ├── alltests.js               # Test entry point
 │   ├── oauth.test.js             # OAuth tests
@@ -61,7 +72,7 @@ SalesforceMobileSDK-ReactNative/
 │   ├── mobilesync.test.js        # MobileSync tests
 │   └── harness.test.js           # Test infrastructure
 ├── dist/                         # Compiled TypeScript output
-├── package.json                  # npm package definition
+├── package.json                  # npm package definition (includes codegenConfig)
 ├── SalesforceReact.podspec       # CocoaPods spec for iOS
 └── tsconfig.json                 # TypeScript configuration
 ```
@@ -79,7 +90,7 @@ The `SalesforceReact.podspec` declares dependencies on iOS SDK libraries:
 These are pulled from the `SalesforceMobileSDK-iOS` repository via CocoaPods (published to `SalesforceMobileSDK-iOS-Specs`).
 
 ### Android Dependencies (via Gradle)
-The Android bridge in `SalesforceMobileSDK-Android/libs/SalesforceReact` depends on:
+The Android bridge in `android/` depends on:
 - `MobileSync` library (which transitively includes SmartStore and SalesforceSDK)
 - `react-android` from Facebook
 
@@ -96,17 +107,18 @@ React Native templates depend on this package via npm:
 Each JavaScript module follows this pattern:
 
 1. **JavaScript API** (`src/react.force.*.ts`): Public-facing TypeScript API
-2. **Native Bridge**: Calls to native modules via React Native's `NativeModules`
-3. **iOS Implementation** (`ios/SalesforceReact/SF*Bridge.m`): Objective-C code that calls iOS SDK
-4. **Android Implementation** (`../Android/libs/SalesforceReact/src/`): Kotlin code that calls Android SDK
+2. **TurboModule Spec** (`src/specs/NativeSF*.ts`): Codegen type definitions
+3. **Native Bridge**: Calls to native modules via `TurboModuleRegistry` (with `NativeModules` fallback)
+4. **iOS Implementation** (`ios/SalesforceReact/SF*Bridge.mm`): Objective-C++ code that calls iOS SDK
+5. **Android Implementation** (`android/src/.../bridge/SF*Bridge.kt`): Kotlin code that calls Android SDK
 
 Example data flow for a REST API call:
 ```
 JS: net.sendRequest(...)
-  → NativeModules.SFNetReactBridge.sendRequest(...)
-    → iOS: SFNetReactBridge.m calls RestClient from SalesforceSDKCore
-    → Android: NetReactBridge.kt calls RestClient from SalesforceSDK
-  ← Native bridge returns promise/callback
+  → SFNetReactBridge.sendRequest(...)  (same module name on both platforms)
+    → iOS: SFNetReactBridge.mm calls RestClient from SalesforceSDKCore
+    → Android: SFNetReactBridge.kt calls RestClient from SalesforceSDK
+  ← Native bridge returns via unified single-callback pattern
 ← JS: Returns promise to app
 ```
 
@@ -198,10 +210,11 @@ The `test/` directory contains the shared test suite used by both iOS and Androi
 - **No direct UI work on bridge thread**: Dispatch to main queue when needed
 
 ### Android Bridge Standards (Kotlin)
-See `SalesforceMobileSDK-Android/CLAUDE.md` for Android-specific standards. Key points:
-- **Kotlin for all new code** in Android bridge
+- **Kotlin for all new code** in Android bridge (`android/`)
+- **TurboModule interface**: All bridges implement `TurboModule` and use the unified single-callback pattern
 - **Coroutines preferred** for async operations
-- Follow Android SDK conventions
+- **Module names**: Must use `SF*` prefix matching iOS (e.g. `SFOauthReactBridge`)
+- Follow Android SDK conventions (see `SalesforceMobileSDK-Android/CLAUDE.md`)
 
 ## Testing Standards
 
@@ -220,8 +233,8 @@ See `SalesforceMobileSDK-Android/CLAUDE.md` for Android-specific standards. Key 
 
 ### Android Bridge Tests
 - **Framework**: AndroidX Test with JUnit
-- **Location**: `SalesforceMobileSDK-Android/libs/SalesforceReact` (separate repo)
-- **Run command**: `./gradlew :libs:SalesforceReact:connectedAndroidTest`
+- **Location**: `androidTests/` (mirrors `iosTests/`)
+- **Run command**: See `androidTests/` for setup and execution
 
 ### What to Test for Each Module
 
@@ -258,18 +271,16 @@ See `SalesforceMobileSDK-Android/CLAUDE.md` for Android-specific standards. Key 
 When making changes that affect the public API:
 
 1. **Modify TypeScript API** in `src/`
-2. **Update iOS bridge** in `ios/SalesforceReact/`
-3. **Update Android bridge** in `SalesforceMobileSDK-Android/libs/SalesforceReact/`
-4. **Update type definitions** in `src/typings/`
-5. **Add tests** in `test/` (shared by both platforms)
-6. **Run iOS tests** via `iosTests/`
-7. **Run Android tests** in Android repo
-8. **Update React Native templates** if needed (in Templates repo)
+2. **Update TurboModule spec** in `src/specs/`
+3. **Update iOS bridge** in `ios/SalesforceReact/`
+4. **Update Android bridge** in `android/`
+5. **Update type definitions** in `src/typings/`
+6. **Add tests** in `test/` (shared by both platforms)
+7. **Run iOS tests** via `iosTests/`
+8. **Run Android tests** via `androidTests/`
+9. **Update React Native templates** if needed (in Templates repo)
 
-**Important**: A complete feature requires changes in multiple repos:
-- This repo (JavaScript + iOS bridge)
-- Android repo (Android bridge)
-- Templates repo (if template updates needed)
+**Important**: A complete feature requires changes in this repo (JavaScript + iOS bridge + Android bridge) plus the Templates repo if template updates are needed. No changes to the Android SDK repo are needed for bridge work.
 
 ## Code Review Checklist
 
