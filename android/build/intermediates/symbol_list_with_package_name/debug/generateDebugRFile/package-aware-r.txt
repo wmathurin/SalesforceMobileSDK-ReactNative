@@ -1,0 +1,4 @@
+com.salesforce.androidsdk.reactnative
+string app_name
+string app_package
+string sf__should_authenticate_but_is_offline

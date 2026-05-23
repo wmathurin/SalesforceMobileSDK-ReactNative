@@ -1,0 +1,28 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:3:1-11:12
+INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:3:1-11:12
+	package
+		INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml
+	android:versionName
+		ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:5:5-37
+	xmlns:android
+		ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:3:11-69
+	android:versionCode
+		ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:4:5-29
+application
+ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:7:5-10:19
+activity#com.salesforce.androidsdk.reactnative.ui.SalesforceReactActivity
+ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:8:9-9:59
+	android:enableOnBackInvokedCallback
+		ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:9:13-56
+	android:name
+		ADDED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml:8:19-61
+uses-sdk
+INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml
+INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/wmathurin/Workspaces/rn-new-architecture-2/SalesforceMobileSDK-Workspace/SalesforceMobileSDK-ReactNative/android/AndroidManifest.xml
