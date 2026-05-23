@@ -13,7 +13,7 @@ plugins {
 include(":app")
 
 // Include SalesforceReact library from this repo's android/ directory
-includeBuild("../../../android") {
+includeBuild("../../android") {
     dependencySubstitution {
         substitute(module("com.salesforce.mobilesdk:SalesforceReact")).using(project(":"))
     }
