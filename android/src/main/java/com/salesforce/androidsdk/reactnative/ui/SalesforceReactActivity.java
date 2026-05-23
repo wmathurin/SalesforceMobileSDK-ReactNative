@@ -26,15 +26,13 @@
  */
 package com.salesforce.androidsdk.reactnative.ui;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.Callback;
 import com.salesforce.androidsdk.reactnative.R;
 import com.salesforce.androidsdk.reactnative.app.SalesforceReactSDKManager;
@@ -57,23 +55,10 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     private RestClient client;
     private ClientManager clientManager;
     private SalesforceReactActivityDelegate reactActivityDelegate;
-    AlertDialog overlayPermissionRequiredDialog;
 
     /**
      * Pending callback for authentication requests from the React Native bridge.
-     *
-     * When authenticate() is called from JavaScript:
-     * - This callback is stored in a pending variable
-     * - It is invoked once authentication completes (either immediately if already
-     *   authenticated, or after OAuth flow completes)
-     * - Two code paths can invoke it: authenticatedRestClient() callback (always runs)
-     *   or onResume() (only runs after OAuth pause/resume cycle)
-     * - Whichever path runs first invokes the callback and clears it to null
-     * - The other path sees null and does nothing, preventing double invocation
-     *
      * Uses single-callback pattern: callback(null, result) for success, callback(error) for error.
-     *
-     * See authenticate() and onResume(RestClient) for the coordination logic.
      */
     private Callback pendingAuthCallback;
 
@@ -132,17 +117,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
         else {
             SalesforceReactLogger.i(TAG, "onResume - already logged in");
 
-            // If we have a pending auth callback (from deferred authentication via authenticate()),
-            // invoke it now. This handles the OAuth flow scenario where the activity was paused
-            // for login and is now resuming.
-            //
-            // NOTE: This works in coordination with authenticate()'s authenticatedRestClient callback.
-            // In the OAuth flow, there's a race condition between onResume() and authenticatedRestClient().
-            // Whichever runs first will find pending callback non-null, invoke it, and set it to null.
-            // The other will find it null and do nothing. This ensures the callback is invoked exactly once.
-            //
-            // For the "already authenticated" scenario, authenticatedRestClient() invokes the callback
-            // immediately without any pause/resume cycle, so this code is never reached.
             if (pendingAuthCallback != null) {
                 SalesforceReactLogger.i(TAG, "onResume - invoking pending auth callback");
                 getAuthCredentials(pendingAuthCallback);
@@ -152,25 +126,15 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     }
 
     private void onResumeNotLoggedIn() {
-
-        // Need to be authenticated.
         if (shouldAuthenticate()) {
-
-            // Online.
             if (SalesforceReactSDKManager.getInstance().hasNetwork()) {
                 SalesforceReactLogger.i(TAG, "onResumeNotLoggedIn - should authenticate/online - authenticating");
                 login();
-            }
-
-            // Offline.
-            else {
+            } else {
                 SalesforceReactLogger.w(TAG, "onResumeNotLoggedIn - should authenticate/offline - can not proceed");
                 onErrorAuthenticateOffline();
             }
-        }
-
-        // Does not need to be authenticated.
-        else {
+        } else {
             SalesforceReactLogger.i(TAG, "onResumeNotLoggedIn - should not authenticate");
         }
     }
@@ -193,7 +157,10 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     }
 
     public void showReactDevOptionsDialog() {
-        getReactNativeHost().getReactInstanceManager().showDevOptionsDialog();
+        ReactInstanceManager instanceManager = peekReactInstanceManager();
+        if (instanceManager != null) {
+            instanceManager.showDevOptionsDialog();
+        }
     }
 
     protected void login() {
@@ -233,23 +200,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
      */
     public void authenticate(final Callback callback) {
         SalesforceReactLogger.i(TAG, "authenticate called");
-
-        // Store callback in pending variable to handle both authentication scenarios:
-        //
-        // SCENARIO 1: Already authenticated (no OAuth needed)
-        //   - getRestClient() callback is invoked immediately on the same thread
-        //   - authenticatedRestClient() below invokes callback immediately
-        //   - Activity does NOT pause/resume, so onResume() is NOT called again
-        //   - Callback is successfully invoked ✓
-        //
-        // SCENARIO 2: OAuth required (activity will pause/resume)
-        //   - getRestClient() starts OAuth flow
-        //   - Activity pauses (goes to login screen)
-        //   - User completes OAuth, activity resumes
-        //   - Either authenticatedRestClient() or onResume() runs first (race condition)
-        //   - Whichever runs first invokes callback and clears pending variable
-        //   - The other sees null pending variable and does nothing
-        //   - Callback is successfully invoked exactly once ✓
         pendingAuthCallback = callback;
 
         clientManager.getRestClient(this, new RestClientCallback() {
@@ -321,57 +271,39 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     }
 
     protected boolean shouldReactBeRunning() {
-        return !shouldAskOverlayPermission() && (!shouldAuthenticate() || client != null);
+        return !shouldAuthenticate() || client != null;
     }
 
     protected void restartReactNativeApp() {
-        SalesforceReactActivity.this.getReactNativeHost().getReactInstanceManager().destroy();
-        if (shouldReactBeRunning()) {
-            SalesforceReactActivity.this.getReactNativeHost().getReactInstanceManager().createReactContextInBackground();
+        ReactInstanceManager instanceManager = peekReactInstanceManager();
+        if (instanceManager != null) {
+            instanceManager.destroy();
+            if (shouldReactBeRunning()) {
+                instanceManager.createReactContextInBackground();
+            }
+        } else {
+            // Bridgeless mode: recreate the activity to restart React
+            if (shouldReactBeRunning()) {
+                recreate();
+            }
         }
     }
 
-    private boolean shouldAskOverlayPermission() {
-        if (SalesforceReactActivity.this.getReactNativeHost().getReactInstanceManager().getDevSupportManager().getDevSupportEnabled()) {
-            if (!Settings.canDrawOverlays(this)) {
-                showPermissionWarning();
-                return true;
-            } else {
-                hidePermissionWarning();
-            }
+    /**
+     * Returns the ReactInstanceManager if available (bridge mode only).
+     * Returns null in bridgeless (new architecture) mode.
+     */
+    private ReactInstanceManager peekReactInstanceManager() {
+        try {
+            return getReactNativeHost().getReactInstanceManager();
+        } catch (Exception e) {
+            return null;
         }
-        return false;
     }
 
     private void loadReactAppOnceIfReady() {
         if (reactActivityDelegate != null ) {
             reactActivityDelegate.loadReactAppOnceIfReady(getMainComponentName());
-        }
-    }
-
-    private void showPermissionWarning() {
-        if (overlayPermissionRequiredDialog == null) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Developer mode: Overlay permissions need to be granted");
-            builder.setCancelable(false);
-            builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                    SalesforceReactActivity.this.recreate();
-                }
-            });
-            overlayPermissionRequiredDialog = builder.create();
-        }
-        if (!overlayPermissionRequiredDialog.isShowing()) {
-            overlayPermissionRequiredDialog.show();
-        }
-    }
-
-    private void hidePermissionWarning() {
-        if (overlayPermissionRequiredDialog != null) {
-            overlayPermissionRequiredDialog.dismiss();
         }
     }
 }
