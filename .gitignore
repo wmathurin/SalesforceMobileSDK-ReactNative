@@ -19,3 +19,6 @@ androidTests/mobile_sdk/
 # Gradle build output
 androidTests/android/.gradle/
 androidTests/android/app/build/
+
+androidTests/android/.kotlin/
+androidTests/android/app/.cxx/
