@@ -70,6 +70,6 @@ class SalesforceOauthReactBridge(reactContext: ReactApplicationContext) :
     }
 
     companion object {
-        private const val TAG = "SalesforceOauthReactBridge"
+        private const val TAG = "SFOauthReactBridge"
     }
 }

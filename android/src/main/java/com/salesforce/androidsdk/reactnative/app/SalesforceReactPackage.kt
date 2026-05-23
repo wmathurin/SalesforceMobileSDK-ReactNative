@@ -41,10 +41,10 @@ class SalesforceReactPackage : BaseReactPackage() {
 
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
         return when (name) {
-            "SalesforceOauthReactBridge" -> SalesforceOauthReactBridge(reactContext)
-            "SalesforceNetReactBridge" -> SalesforceNetReactBridge(reactContext)
-            "SmartStoreReactBridge" -> SmartStoreReactBridge(reactContext)
-            "MobileSyncReactBridge" -> MobileSyncReactBridge(reactContext)
+            "SFOauthReactBridge" -> SalesforceOauthReactBridge(reactContext)
+            "SFNetReactBridge" -> SalesforceNetReactBridge(reactContext)
+            "SFSmartStoreReactBridge" -> SmartStoreReactBridge(reactContext)
+            "SFMobileSyncReactBridge" -> MobileSyncReactBridge(reactContext)
             else -> null
         }
     }
@@ -52,17 +52,17 @@ class SalesforceReactPackage : BaseReactPackage() {
     override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
         return ReactModuleInfoProvider {
             mapOf(
-                "SalesforceOauthReactBridge" to ReactModuleInfo(
-                    "SalesforceOauthReactBridge", "SalesforceOauthReactBridge", false, false, false, true
+                "SFOauthReactBridge" to ReactModuleInfo(
+                    "SFOauthReactBridge", "SFOauthReactBridge", false, false, false, true
                 ),
-                "SalesforceNetReactBridge" to ReactModuleInfo(
-                    "SalesforceNetReactBridge", "SalesforceNetReactBridge", false, false, false, true
+                "SFNetReactBridge" to ReactModuleInfo(
+                    "SFNetReactBridge", "SFNetReactBridge", false, false, false, true
                 ),
-                "SmartStoreReactBridge" to ReactModuleInfo(
-                    "SmartStoreReactBridge", "SmartStoreReactBridge", false, false, false, true
+                "SFSmartStoreReactBridge" to ReactModuleInfo(
+                    "SFSmartStoreReactBridge", "SFSmartStoreReactBridge", false, false, false, true
                 ),
-                "MobileSyncReactBridge" to ReactModuleInfo(
-                    "MobileSyncReactBridge", "MobileSyncReactBridge", false, false, false, true
+                "SFMobileSyncReactBridge" to ReactModuleInfo(
+                    "SFMobileSyncReactBridge", "SFMobileSyncReactBridge", false, false, false, true
                 ),
             )
         }

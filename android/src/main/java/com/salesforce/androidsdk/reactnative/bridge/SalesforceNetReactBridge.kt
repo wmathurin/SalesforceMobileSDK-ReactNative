@@ -69,7 +69,7 @@ open class SalesforceNetReactBridge(
         private const val ENCODED_BODY = "encodedBody"
         private const val CONTENT_TYPE = "contentType"
         private const val DOES_NOT_REQUIRE_AUTHENTICATION = "doesNotRequireAuthentication"
-        private const val TAG = "SalesforceNetReactBridge"
+        private const val TAG = "SFNetReactBridge"
     }
 
     override fun getName(): String = TAG

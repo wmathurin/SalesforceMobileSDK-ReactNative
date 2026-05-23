@@ -50,7 +50,7 @@ class MobileSyncReactBridge(reactContext: ReactApplicationContext) :
         const val OPTIONS = "options"
         const val SYNC_ID = "syncId"
         const val SYNC_NAME = "syncName"
-        const val TAG = "MobileSyncReactBridge"
+        const val TAG = "SFMobileSyncReactBridge"
     }
 
     override fun getName(): String = TAG

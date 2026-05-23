@@ -49,7 +49,7 @@ import org.json.JSONObject
 class SmartStoreReactBridge(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext), TurboModule {
 
-    override fun getName(): String = "SmartStoreReactBridge"
+    override fun getName(): String = "SFSmartStoreReactBridge"
 
     /**
      * Native implementation of removeFromSoup
