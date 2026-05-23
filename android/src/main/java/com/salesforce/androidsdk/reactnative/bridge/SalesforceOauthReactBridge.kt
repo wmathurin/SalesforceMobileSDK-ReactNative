@@ -26,6 +26,8 @@
  */
 package com.salesforce.androidsdk.reactnative.bridge
 
+import android.os.Handler
+import android.os.Looper
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -41,29 +43,33 @@ class SalesforceOauthReactBridge(reactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun authenticate(args: ReadableMap, callback: Callback) {
-        val currentActivity = getCurrentActivity() as? SalesforceReactActivity
-        if (currentActivity != null) {
-            currentActivity.authenticate(callback)
-        } else {
-            ReactBridgeHelper.invokeError(callback, "SalesforceReactActivity not found")
+        withActivity(callback) { activity ->
+            activity.authenticate(callback)
         }
     }
 
     @ReactMethod
     fun getAuthCredentials(args: ReadableMap, callback: Callback) {
-        val currentActivity = getCurrentActivity() as? SalesforceReactActivity
-        if (currentActivity != null) {
-            currentActivity.getAuthCredentials(callback)
-        } else {
-            ReactBridgeHelper.invokeError(callback, "SalesforceReactActivity not found")
+        withActivity(callback) { activity ->
+            activity.getAuthCredentials(callback)
         }
     }
 
     @ReactMethod
     fun logoutCurrentUser(args: ReadableMap, callback: Callback) {
-        val currentActivity = getCurrentActivity() as? SalesforceReactActivity
-        if (currentActivity != null) {
-            currentActivity.logout(callback)
+        withActivity(callback) { activity ->
+            activity.logout(callback)
+        }
+    }
+
+    private fun withActivity(callback: Callback, retries: Int = 5, action: (SalesforceReactActivity) -> Unit) {
+        val activity = getCurrentActivity() as? SalesforceReactActivity
+        if (activity != null) {
+            action(activity)
+        } else if (retries > 0) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                withActivity(callback, retries - 1, action)
+            }, 500)
         } else {
             ReactBridgeHelper.invokeError(callback, "SalesforceReactActivity not found")
         }
