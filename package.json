@@ -44,10 +44,7 @@
   "codegenConfig": {
     "name": "RNSalesforceReactSpec",
     "type": "modules",
-    "jsSrcsDir": "src/specs",
-    "android": {
-      "javaPackageName": "com.salesforce.androidsdk.reactnative.generated"
-    }
+    "jsSrcsDir": "src/specs"
   },
   "scripts": {
     "build": "tsc --build",
