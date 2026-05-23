@@ -24,44 +24,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+package com.salesforce.androidsdk.reactnative.util
 
-package com.salesforce.androidsdk.reactnative.util;
+import android.app.Application
+import com.facebook.react.ReactApplication
+import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeHost
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
+import com.facebook.soloader.SoLoader
+import com.salesforce.androidsdk.analytics.EventBuilderHelper
+import com.salesforce.androidsdk.reactnative.app.SalesforceReactSDKManager
+import com.salesforce.androidsdk.util.test.TestCredentials
 
-import android.app.Application;
+class SalesforceReactTestApp : Application(), ReactApplication {
 
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.soloader.OpenSourceMergedSoMapping;
-import com.facebook.soloader.SoLoader;
-import com.salesforce.androidsdk.analytics.EventBuilderHelper;
-import com.salesforce.androidsdk.reactnative.app.SalesforceReactSDKManager;
-import com.salesforce.androidsdk.util.test.TestCredentials;
+    override val reactNativeHost: ReactNativeHost = ReactNativeTestHost(this)
 
-import java.io.IOException;
+    override val reactHost: ReactHost
+        get() = getDefaultReactHost(applicationContext, reactNativeHost)
 
-/**
- * Test application for Salesforce react native modules.
- */
-public class SalesforceReactTestApp extends Application implements ReactApplication {
-
-    private final ReactNativeHost _mReactNativeHost = new ReactNativeTestHost(this);
-
-    @Override
-    public ReactNativeHost getReactNativeHost() {
-        return _mReactNativeHost;
+    override fun onCreate() {
+        super.onCreate()
+        SoLoader.init(this, OpenSourceMergedSoMapping)
+        load()
+        EventBuilderHelper.enableDisable(false)
+        SalesforceReactSDKManager.initReactNative(applicationContext, ReactTestActivity::class.java)
+        TestCredentials.init(this)
     }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        try {
-            SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        EventBuilderHelper.enableDisable(false);
-        SalesforceReactSDKManager.initReactNative(getApplicationContext(), ReactTestActivity.class);
-        TestCredentials.init(this);
-    }
-
 }

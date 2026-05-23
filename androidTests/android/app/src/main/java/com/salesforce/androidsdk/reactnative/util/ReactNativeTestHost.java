@@ -29,63 +29,61 @@ package com.salesforce.androidsdk.reactnative.util;
 
 import android.app.Application;
 
-import com.facebook.react.ReactInstanceManager;
-import com.facebook.react.ReactInstanceManagerBuilder;
-import com.facebook.react.ReactNativeHost;
+import androidx.annotation.NonNull;
+
 import com.facebook.react.ReactPackage;
-import com.facebook.react.common.LifecycleState;
+import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.react.shell.MainReactPackage;
-import com.salesforce.androidsdk.reactnative.app.SalesforceReactSDKManager;
+import com.salesforce.androidsdk.reactnative.app.SalesforceReactPackage;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Subclass of ReactNativeHost used for testing
- * <p>
- * In addition to the SalesforceReact react packages, it loads SalesforceReactTestPackage (which brings SalesforceTestBridge)
- * It creates an ReactInstanceManager which handles error through NativeModuleCallExceptionTestHandler
- * That way the current test running is marked as failed if any javascript error takes place
+ * Subclass of DefaultReactNativeHost used for testing.
+ *
+ * Loads SalesforceReactPackage and SalesforceReactTestPackage (which brings SalesforceTestBridge).
+ * Uses new architecture (TurboModules) with Hermes and reads from a pre-built JS bundle.
  */
-public class ReactNativeTestHost extends ReactNativeHost {
-
-    private final Application mApplication;
+public class ReactNativeTestHost extends DefaultReactNativeHost {
 
     protected ReactNativeTestHost(Application application) {
         super(application);
-        mApplication = application;
     }
-
 
     @Override
     public boolean getUseDeveloperSupport() {
         return false;
     }
 
+    @NonNull
     @Override
     protected List<ReactPackage> getPackages() {
         return Arrays.asList(
                 new MainReactPackage(),
-                SalesforceReactSDKManager.getInstance().getReactPackage(),
+                new SalesforceReactPackage(),
                 new SalesforceReactTestPackage()
         );
     }
 
+    @NonNull
     @Override
-    protected ReactInstanceManager createReactInstanceManager() {
-        ReactInstanceManagerBuilder builder = ReactInstanceManager.builder()
-                .setApplication(mApplication)
-                .setJavaScriptExecutorFactory(getJavaScriptExecutorFactory())
-                .setInitialLifecycleState(LifecycleState.BEFORE_CREATE)
-                // Always reading from bundle
-                // NB: Bundle is generated during build
-                .setBundleAssetName("index.android.bundle")
-                .setUseDeveloperSupport(false);
+    protected String getJSMainModuleName() {
+        return "index";
+    }
 
-        for (ReactPackage reactPackage : getPackages()) {
-            builder.addPackage(reactPackage);
-        }
+    @Override
+    protected String getBundleAssetName() {
+        return "index.android.bundle";
+    }
 
-        return builder.build();
+    @Override
+    public boolean isNewArchEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean isHermesEnabled() {
+        return true;
     }
 }

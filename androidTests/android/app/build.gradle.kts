@@ -52,7 +52,7 @@ kotlin {
 dependencies {
     implementation("com.salesforce.mobilesdk:SalesforceReact")
     implementation("com.facebook.react:react-android:0.81.5")
-    implementation("org.webkit:android-jsc:+")
+    implementation("com.facebook.react:hermes-android:0.81.5")
 
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
