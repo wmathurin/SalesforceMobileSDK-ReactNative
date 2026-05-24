@@ -76,6 +76,10 @@ open class SalesforceNetReactBridge(
 
     @ReactMethod
     fun sendRequest(args: ReadableMap, callback: Callback) {
+        sendRequestWithRetry(args, callback, 5)
+    }
+
+    private fun sendRequestWithRetry(args: ReadableMap, callback: Callback, retries: Int) {
         try {
             // Prepare request
             val request = prepareRestRequest(args)
@@ -84,7 +88,18 @@ open class SalesforceNetReactBridge(
                     && args.getBoolean(DOES_NOT_REQUIRE_AUTHENTICATION)
 
             // Sending request
-            val restClient = getRestClient(doesNotRequireAuth) ?: return // we are detached - do nothing
+            val restClient = getRestClient(doesNotRequireAuth)
+            if (restClient == null) {
+                if (retries > 0) {
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        sendRequestWithRetry(args, callback, retries - 1)
+                    }, 500)
+                    return
+                } else {
+                    ReactBridgeHelper.invokeError(callback, "SalesforceReactActivity not found")
+                    return
+                }
+            }
             restClient.sendAsync(request, object : RestClient.AsyncRequestCallback {
 
                 override fun onSuccess(request: RestRequest, response: RestResponse) {
