@@ -128,7 +128,7 @@ JS: net.sendRequest(...)
 - **Node.js**: 20+ (see `package.json` engines)
 - **TypeScript**: Installed via devDependencies
 - **iOS Development**: Xcode 15+, macOS
-- **Android Development**: For Android bridge testing, see Android repo
+- **Android Development**: For Android bridge testing, see `androidTests/`
 
 ### Build JavaScript/TypeScript
 
@@ -173,7 +173,7 @@ The `test/` directory contains the shared test suite used by both iOS and Androi
 ```bash
 # Tests are bundled into iOS/Android test apps
 # See iosTests/README.md for iOS testing
-# See Android repo for Android testing
+# See androidTests/ for Android testing
 ```
 
 **Test files**:
@@ -291,7 +291,7 @@ When reviewing PRs:
 - [ ] **Backward compatibility**: No breaking changes without deprecation cycle
 - [ ] **Tests included**: JavaScript tests cover new functionality
 - [ ] **iOS tests pass**: Run iosTests suite
-- [ ] **Android tests pass**: Verify in Android repo
+- [ ] **Android tests pass**: Run androidTests/
 - [ ] **Documentation**: JSDoc comments on public APIs
 - [ ] **Templates work**: Test with ReactNativeTemplate if API changed
 - [ ] **No console warnings**: No ESLint or TypeScript compiler warnings
