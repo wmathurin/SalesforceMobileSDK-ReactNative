@@ -23,7 +23,6 @@ androidTests/android/app/build/
 androidTests/android/.kotlin/
 androidTests/android/app/.cxx/
 
-# Android library build output (except pre-built codegen)
+# Android library build output
 android/.gradle/
-android/build/*
-!android/build/generated/
+android/build/
