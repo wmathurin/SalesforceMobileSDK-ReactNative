@@ -1,0 +1,46 @@
+on:
+  workflow_call:
+    inputs:
+      is_pr:
+        type: boolean
+        default: false
+
+jobs:
+  test-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ inputs.is_pr }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/checkout@v4
+        if: ${{ ! inputs.is_pr }}
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Install Dependencies
+        env:
+          TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+        run: |
+          npm install -g typescript
+          cd androidTests
+          ./prepareandroid.js
+          ./create_test_credentials_from_env.js
+      - name: Build test APKs
+        run: |
+          cd androidTests/android
+          ./gradlew :app:assembleDebug :app:assembleAndroidTest
+      - name: Test Report
+        if: success() || failure()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          check_name: Android Test Results
+          report_paths: androidTests/android/app/build/outputs/androidTest-results/**/*.xml

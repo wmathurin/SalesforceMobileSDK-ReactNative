@@ -45,3 +45,10 @@ jobs:
       ios: ${{ matrix.ios }}
       xcode: ${{ matrix.xcode }}
     secrets: inherit
+
+  android-pr:
+    needs: [permission-check]
+    uses: ./.github/workflows/reusable-android-workflow.yaml
+    with:
+      is_pr: true
+    secrets: inherit
