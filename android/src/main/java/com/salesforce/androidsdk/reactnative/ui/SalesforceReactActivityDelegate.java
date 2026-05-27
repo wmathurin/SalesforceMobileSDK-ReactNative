@@ -29,33 +29,13 @@ package com.salesforce.androidsdk.reactnative.ui;
 import com.facebook.react.ReactActivityDelegate;
 
 /**
- * Delegate that loads the app context when ready.
+ * Delegate for SalesforceReactActivity.
+ * In bridgeless mode (RN 0.82+), the ReactHost manages surface lifecycle
+ * automatically — no gating of loadApp() is needed.
  */
 public class SalesforceReactActivityDelegate extends ReactActivityDelegate {
 
-    private SalesforceReactActivity salesforceReactActivity;
-    private boolean loaded = false;
-
     SalesforceReactActivityDelegate(SalesforceReactActivity activity, String mainComponentName) {
         super(activity, mainComponentName);
-        salesforceReactActivity = activity;
-    }
-
-    @Override
-    protected void loadApp(String appKey) {
-        loadReactAppOnceIfReady(appKey);
-    }
-
-    /**
-     * Loads the app once it's ready.
-     *
-     * @param appKey App key.
-     */
-    public void loadReactAppOnceIfReady(String appKey) {
-        if (!loaded && salesforceReactActivity != null && salesforceReactActivity.shouldReactBeRunning()) {
-            super.loadApp(appKey);
-            loaded = true;
-            super.onResume();
-        }
     }
 }
