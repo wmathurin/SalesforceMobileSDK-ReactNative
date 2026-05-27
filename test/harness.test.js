@@ -28,12 +28,12 @@ import { assert } from 'chai';
 import { oauth, forceTest } from 'react-native-force';
 const { registerTest, testDone } = forceTest;
 
-testPassing = () => {
+const testPassing = () => {
     assert(true, "testPassing should have succeeded");
     testDone();
 };
 
-testAsyncPassing = () => {
+const testAsyncPassing = () => {
     oauth.getAuthCredentials(
         (creds) => { testDone(); },
         (error) => { throw error; }

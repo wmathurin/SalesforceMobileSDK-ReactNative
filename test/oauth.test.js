@@ -28,7 +28,7 @@ import { assert } from 'chai';
 import * as oauth from '../src/react.force.oauth';
 import { registerTest, testDone } from '../src/react.force.test';
 
-testGetAuthCredentials = () => {
+const testGetAuthCredentials = () => {
     oauth.getAuthCredentials(
         (creds) => {
             assert.containsAllKeys(creds, ["accessToken","instanceUrl","loginUrl","orgId","refreshToken","userAgent","userId"], 'Wrong keys in credentials');

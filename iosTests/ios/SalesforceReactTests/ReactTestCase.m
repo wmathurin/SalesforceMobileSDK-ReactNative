@@ -54,11 +54,9 @@ static NSException *authException = nil;
         XCTFail(@"jsSuitePath not defined");
     }
     
-    // Always reading from bundle
-    // NB: Bundle is generated during build
     NSURL* scriptUrl = [[NSBundle bundleForClass:[self class]] URLForResource:@"index.ios" withExtension:@"bundle"];
-    
-    self.runner = [[RCTTestRunner alloc] initWithApp:self.jsSuitePath referenceDirectory:@"" moduleProvider:nil scriptURL:scriptUrl];
+
+    self.runner = [[RCTTestRunner alloc] initWithApp:self.jsSuitePath scriptURL:scriptUrl];
     [super setUp];
 }
 

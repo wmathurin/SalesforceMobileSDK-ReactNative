@@ -54,7 +54,7 @@ const storeConfig = {isGlobalStore:false};
 const soupName = 'contacts';
 const indexSpecs = [{ 'path': 'Id', 'type': 'string'}, { 'path': 'FirstName', 'type': 'string'}, { 'path': 'LastName', 'type': 'string'}, { 'path': '__local__', 'type': 'string'}];
 
-testSyncUp = () => {
+const testSyncUp = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;    
     var contactSmartStoreId;
@@ -101,7 +101,7 @@ testSyncUp = () => {
         });
 };
 
-testSyncDown = () => {
+const testSyncDown = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     var contactId;
@@ -139,7 +139,7 @@ testSyncDown = () => {
         });
 };
 
-testReSync = () => {
+const testReSync = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     const otherFirstName = 'Other' + uniq;
@@ -204,7 +204,7 @@ testReSync = () => {
         });
 };
 
-testCleanResyncGhosts = () => {
+const testCleanResyncGhosts = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     const otherFirstName = 'Other' + uniq;
@@ -262,7 +262,7 @@ testCleanResyncGhosts = () => {
         });
 };
 
-testGetSyncStatusDeleteSync = () => {
+const testGetSyncStatusDeleteSync = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     var syncId;

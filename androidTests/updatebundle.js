@@ -13,7 +13,7 @@ execFileSync('node', [
     'node_modules/react-native/cli.js', 'bundle',
     '--platform', 'android',
     '--dev', 'true',
-    '--entry-file', 'node_modules/react-native-force/test/alltests.js',
+    '--entry-file', 'index.js',
     '--bundle-output', path.join(assetsDir, 'index.android.bundle'),
     '--assets-dest', assetsDir
 ], {stdio:[0,1,2]});

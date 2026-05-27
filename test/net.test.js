@@ -57,12 +57,12 @@ const sendUnAuthenticatedNetRequest = (url, callback, error) => {
 
 netSendRequest = promiser(sendUnAuthenticatedNetRequest);
 
-testGetApiVersion = () => {
+const testGetApiVersion = () => {
     assert.equal(net.getApiVersion(), apiVersion);
     testDone();
 };
 
-testVersions = () => {
+const testVersions = () => {
     netVersions()
         .then((response) => {
             assert.deepInclude(response, {'label':'Spring \'25','url':'/services/data/v63.0','version':'63.0'}, 'Wrong version response');
@@ -70,7 +70,7 @@ testVersions = () => {
         });
 };
 
-testResources = () => {
+const testResources = () => {
     netResources()
         .then((response) => {
             assert.equal(response.connect, '/services/data/' + apiVersion + '/connect', 'Wrong url for connect resource');
@@ -78,7 +78,7 @@ testResources = () => {
         });
 };
 
-testDescribeGlobal = () => {
+const testDescribeGlobal = () => {
     netDescribeGlobal()
         .then((response) => {
             assert.isArray(response.sobjects, 'Expected sobjects array');
@@ -86,7 +86,7 @@ testDescribeGlobal = () => {
         });
 };
 
-testMetaData = () => {
+const testMetaData = () => {
     netMetadata('account')
         .then((response) => {
             assert.isObject(response.objectDescribe, 'Expected objectDescribe object');
@@ -95,7 +95,7 @@ testMetaData = () => {
         });
 };
 
-testDescribe = () => {
+const testDescribe = () => {
     netDescribe('account')
         .then((response) => {
             assert.isFalse(response.custom, 'Expected custom to be false');
@@ -104,7 +104,7 @@ testDescribe = () => {
         });
 };
 
-testDescribeLayout = () => {
+const testDescribeLayout = () => {
     netDescribe('account')
         .then((response) => {
             const recordId = response.recordTypeInfos[0].recordTypeId;
@@ -116,7 +116,7 @@ testDescribeLayout = () => {
         });
 };
 
-testCreateRetrieve = () => {
+const testCreateRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -141,7 +141,7 @@ testCreateRetrieve = () => {
         });
 };
 
-testUpsertUpdateRetrieve = () => {
+const testUpsertUpdateRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -170,7 +170,7 @@ testUpsertUpdateRetrieve = () => {
         });
 };
 
-testCreateDelRetrieve = () => {
+const testCreateDelRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -194,7 +194,7 @@ testCreateDelRetrieve = () => {
         });
 };
 
-testQuery = () => {
+const testQuery = () => {
     netQuery('SELECT FirstName, LastName FROM Contact LIMIT 5')
         .then((response) => {
             assert.isArray(response.records, 'Expected records');
@@ -204,7 +204,7 @@ testQuery = () => {
         });
 };
 
-testSearch = () => {
+const testSearch = () => {
     netSearch('FIND {Joe} IN NAME FIELDS RETURNING Contact')
         .then((response) => {
             assert.isArray(response.searchRecords, 'Expected searchRecords');
@@ -212,7 +212,7 @@ testSearch = () => {
         });
 };
 
-testPublicApiCall = () => {
+const testPublicApiCall = () => {
     netSendRequest( 'https://api.ipify.org?format=json')
         .then((response) => {
           assert.isObject(response, 'Expected A successful response');
@@ -225,7 +225,7 @@ testPublicApiCall = () => {
 
 };
 
-testCollectionCreateRetrieve = () => {
+const testCollectionCreateRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -264,7 +264,7 @@ testCollectionCreateRetrieve = () => {
         });
 }
 
-testCollectionUpsertUpdateRetrieve = () => {
+const testCollectionUpsertUpdateRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -313,7 +313,7 @@ testCollectionUpsertUpdateRetrieve = () => {
         });
 };
 
-testCollectionCreateDeleteRetrieve = () => {
+const testCollectionCreateDeleteRetrieve = () => {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
