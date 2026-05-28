@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as smartstore from '../src/react.force.smartstore';
 import { registerTest, testDone } from '../src/react.force.test';
 import { promiser } from '../src/react.force.util';
@@ -52,7 +52,7 @@ closeCursor = promiser(smartstore.closeCursor);
 
 const storeConfig = {isGlobalStore:false};
 
-const testGetDatabaseSize = () => {
+function testGetDatabaseSize() {
     getDatabaseSize(storeConfig)
         .then((result) => {
             assert.isNumber(result, 'Expected number');
@@ -60,7 +60,7 @@ const testGetDatabaseSize = () => {
         });
 };
 
-const testRegisterExistsRemoveExists = () => {
+function testRegisterExistsRemoveExists() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}, {path:'Id', type:'string'}];    
@@ -82,7 +82,7 @@ const testRegisterExistsRemoveExists = () => {
         });
 };
 
-const testGetSoupIndexSpecs = () => {
+function testGetSoupIndexSpecs() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}, {path:'Id', type:'string'}];
@@ -97,7 +97,7 @@ const testGetSoupIndexSpecs = () => {
         });
 };
 
-const testUpsertRetrieve = () => {
+function testUpsertRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -122,7 +122,7 @@ const testUpsertRetrieve = () => {
         });
 };
 
-const testQuerySoup = () => {
+function testQuerySoup() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -145,7 +145,7 @@ const testQuerySoup = () => {
         });
 };
 
-const testMoveCursor = () => {
+function testMoveCursor() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -192,7 +192,7 @@ const testMoveCursor = () => {
 };
 
 
-const testSmartQuerySoup = () => {
+function testSmartQuerySoup() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -214,7 +214,7 @@ const testSmartQuerySoup = () => {
         });
 };
 
-const testRemoveFromSoup = () => {
+function testRemoveFromSoup() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -235,7 +235,7 @@ const testRemoveFromSoup = () => {
         });
 };
 
-const testClearSoup = () => {
+function testClearSoup() {
     const uniq = Math.floor(Math.random() * 1000000);
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
@@ -256,7 +256,7 @@ const testClearSoup = () => {
         });
 };
 
-const testGetRemoveStores = () => {
+function testGetRemoveStores() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstStoreConfig = {isGlobalStore:false, storeName:'store_1_' + uniq};
     const secondStoreConfig = {isGlobalStore:false, storeName:'store_2_' + uniq};
@@ -290,7 +290,7 @@ const testGetRemoveStores = () => {
         });
 };
 
-const testGetRemoveGlobalStores = () => {
+function testGetRemoveGlobalStores() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstStoreConfig = {isGlobalStore:true, storeName:'store_1_' + uniq};
     const secondStoreConfig = {isGlobalStore:true, storeName:'store_2_' + uniq};

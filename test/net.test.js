@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as net from '../src/react.force.net';
 import { registerTest, testDone } from '../src/react.force.test';
 import { promiser } from '../src/react.force.util';
@@ -57,12 +57,12 @@ const sendUnAuthenticatedNetRequest = (url, callback, error) => {
 
 netSendRequest = promiser(sendUnAuthenticatedNetRequest);
 
-const testGetApiVersion = () => {
+function testGetApiVersion() {
     assert.equal(net.getApiVersion(), apiVersion);
     testDone();
 };
 
-const testVersions = () => {
+function testVersions() {
     netVersions()
         .then((response) => {
             assert.deepInclude(response, {'label':'Spring \'25','url':'/services/data/v63.0','version':'63.0'}, 'Wrong version response');
@@ -70,7 +70,7 @@ const testVersions = () => {
         });
 };
 
-const testResources = () => {
+function testResources() {
     netResources()
         .then((response) => {
             assert.equal(response.connect, '/services/data/' + apiVersion + '/connect', 'Wrong url for connect resource');
@@ -78,7 +78,7 @@ const testResources = () => {
         });
 };
 
-const testDescribeGlobal = () => {
+function testDescribeGlobal() {
     netDescribeGlobal()
         .then((response) => {
             assert.isArray(response.sobjects, 'Expected sobjects array');
@@ -86,7 +86,7 @@ const testDescribeGlobal = () => {
         });
 };
 
-const testMetaData = () => {
+function testMetaData() {
     netMetadata('account')
         .then((response) => {
             assert.isObject(response.objectDescribe, 'Expected objectDescribe object');
@@ -95,7 +95,7 @@ const testMetaData = () => {
         });
 };
 
-const testDescribe = () => {
+function testDescribe() {
     netDescribe('account')
         .then((response) => {
             assert.isFalse(response.custom, 'Expected custom to be false');
@@ -104,7 +104,7 @@ const testDescribe = () => {
         });
 };
 
-const testDescribeLayout = () => {
+function testDescribeLayout() {
     netDescribe('account')
         .then((response) => {
             const recordId = response.recordTypeInfos[0].recordTypeId;
@@ -116,7 +116,7 @@ const testDescribeLayout = () => {
         });
 };
 
-const testCreateRetrieve = () => {
+function testCreateRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -141,7 +141,7 @@ const testCreateRetrieve = () => {
         });
 };
 
-const testUpsertUpdateRetrieve = () => {
+function testUpsertUpdateRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -170,7 +170,7 @@ const testUpsertUpdateRetrieve = () => {
         });
 };
 
-const testCreateDelRetrieve = () => {
+function testCreateDelRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -194,7 +194,7 @@ const testCreateDelRetrieve = () => {
         });
 };
 
-const testQuery = () => {
+function testQuery() {
     netQuery('SELECT FirstName, LastName FROM Contact LIMIT 5')
         .then((response) => {
             assert.isArray(response.records, 'Expected records');
@@ -204,7 +204,7 @@ const testQuery = () => {
         });
 };
 
-const testSearch = () => {
+function testSearch() {
     netSearch('FIND {Joe} IN NAME FIELDS RETURNING Contact')
         .then((response) => {
             assert.isArray(response.searchRecords, 'Expected searchRecords');
@@ -212,7 +212,7 @@ const testSearch = () => {
         });
 };
 
-const testPublicApiCall = () => {
+function testPublicApiCall() {
     netSendRequest( 'https://api.ipify.org?format=json')
         .then((response) => {
           assert.isObject(response, 'Expected A successful response');
@@ -225,7 +225,7 @@ const testPublicApiCall = () => {
 
 };
 
-const testCollectionCreateRetrieve = () => {
+function testCollectionCreateRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -264,7 +264,7 @@ const testCollectionCreateRetrieve = () => {
         });
 }
 
-const testCollectionUpsertUpdateRetrieve = () => {
+function testCollectionUpsertUpdateRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;
@@ -313,7 +313,7 @@ const testCollectionUpsertUpdateRetrieve = () => {
         });
 };
 
-const testCollectionCreateDeleteRetrieve = () => {
+function testCollectionCreateDeleteRetrieve() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First_' + uniq;
     const lastName = 'Last_' + uniq;

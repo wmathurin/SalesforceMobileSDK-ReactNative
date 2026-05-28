@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as net from '../src/react.force.net';
 import * as smartstore from '../src/react.force.smartstore';
 import * as mobilesync from '../src/react.force.mobilesync';
@@ -54,7 +54,7 @@ const storeConfig = {isGlobalStore:false};
 const soupName = 'contacts';
 const indexSpecs = [{ 'path': 'Id', 'type': 'string'}, { 'path': 'FirstName', 'type': 'string'}, { 'path': 'LastName', 'type': 'string'}, { 'path': '__local__', 'type': 'string'}];
 
-const testSyncUp = () => {
+function testSyncUp() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;    
     var contactSmartStoreId;
@@ -101,7 +101,7 @@ const testSyncUp = () => {
         });
 };
 
-const testSyncDown = () => {
+function testSyncDown() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     var contactId;
@@ -139,7 +139,7 @@ const testSyncDown = () => {
         });
 };
 
-const testReSync = () => {
+function testReSync() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     const otherFirstName = 'Other' + uniq;
@@ -204,7 +204,7 @@ const testReSync = () => {
         });
 };
 
-const testCleanResyncGhosts = () => {
+function testCleanResyncGhosts() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     const otherFirstName = 'Other' + uniq;
@@ -262,7 +262,7 @@ const testCleanResyncGhosts = () => {
         });
 };
 
-const testGetSyncStatusDeleteSync = () => {
+function testGetSyncStatusDeleteSync() {
     const uniq = Math.floor(Math.random() * 1000000);
     const firstName = 'First' + uniq;
     var syncId;

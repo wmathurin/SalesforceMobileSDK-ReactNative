@@ -12,7 +12,7 @@ if (!fs.existsSync(assetsDir)) {
 execFileSync('node', [
     'node_modules/react-native/cli.js', 'bundle',
     '--platform', 'android',
-    '--dev', 'true',
+    '--dev', 'false', '--minify', 'false',
     '--entry-file', 'index.js',
     '--bundle-output', path.join(assetsDir, 'index.android.bundle'),
     '--assets-dest', assetsDir
