@@ -50,11 +50,11 @@ graph TB
         M[SFMobileSyncReactBridge.m]
     end
     
-    subgraph "Layer 3b: Android Native (Android repo)"
-        N[OauthReactBridge.kt]
-        O[NetReactBridge.kt]
-        P[SmartStoreReactBridge.kt]
-        Q[MobileSyncReactBridge.kt]
+    subgraph "Layer 3b: Android Native (this repo - android/)"
+        N[SFOauthReactBridge.kt]
+        O[SFNetReactBridge.kt]
+        P[SFSmartStoreReactBridge.kt]
+        Q[SFMobileSyncReactBridge.kt]
     end
     
     subgraph "iOS SDK Libraries"
@@ -116,9 +116,9 @@ The public-facing API that React Native developers use. Written in TypeScript wi
 
 ### Layer 2: React Native Bridge
 
-**Location**: React Native's `NativeModules` API
+**Location**: React Native's TurboModuleRegistry / `NativeModules` API
 
-The communication layer between JavaScript and native code. React Native provides this infrastructure.
+The communication layer between JavaScript and native code. React Native provides this infrastructure. With the new architecture, modules are resolved via `TurboModuleRegistry.get()` with a `NativeModules` fallback.
 
 **Responsibilities**:
 - Serialize JavaScript arguments to JSON
@@ -126,11 +126,13 @@ The communication layer between JavaScript and native code. React Native provide
 - Return results via callbacks/promises
 - Handle errors and exceptions
 
-**Key APIs**:
-- `NativeModules.SFOauthReactBridge` (iOS) / `SalesforceOauthReactBridge` (Android)
-- `NativeModules.SFNetReactBridge` (iOS) / `SalesforceNetReactBridge` (Android)
-- `NativeModules.SFSmartStoreReactBridge` (iOS) / `SmartStoreReactBridge` (Android)
-- `NativeModules.SFMobileSyncReactBridge` (iOS) / `MobileSyncReactBridge` (Android)
+**Key APIs** (unified module names on both platforms):
+- `NativeModules.SFOauthReactBridge`
+- `NativeModules.SFNetReactBridge`
+- `NativeModules.SFSmartStoreReactBridge`
+- `NativeModules.SFMobileSyncReactBridge`
+
+Module registration is handled by React Native autolinking (no manual `PackageList` registration needed).
 
 ### Layer 3a: iOS Native Bridge (This Repository)
 
@@ -153,13 +155,21 @@ Objective-C modules that implement the React Native bridge protocol and call iOS
 - `ios/SalesforceReact/SFSDKReactLogger.{h,m}` - Logging utilities
 - `ios/SalesforceReact/SalesforceReactSDKManager.{h,m}` - SDK initialization
 
-### Layer 3b: Android Native Bridge (Separate Repository)
+### Layer 3b: Android Native Bridge (This Repository)
 
-**Location**: `SalesforceMobileSDK-Android/libs/SalesforceReact/`
+**Location**: `android/` directory
 
-Java modules that implement React Native's bridge interface and call Android SDK libraries. (Per project standards new code should be Kotlin; existing bridge files are currently Java with a planned Kotlin migration.)
+Kotlin modules that implement React Native's TurboModule interface and call Android SDK libraries.
 
-**Note**: This code lives in the Android repository, NOT this repository.
+**Note**: As of SDK 14.0, the Android bridge code has moved from `SalesforceMobileSDK-Android/libs/SalesforceReact/` to this repository's `android/` directory. This mirrors the iOS bridge layout and enables React Native autolinking.
+
+**Key Files**:
+- `android/src/main/java/.../bridge/SFOauthReactBridge.kt` - OAuth bridge
+- `android/src/main/java/.../bridge/SFNetReactBridge.kt` - REST API bridge
+- `android/src/main/java/.../bridge/SFSmartStoreReactBridge.kt` - SmartStore bridge
+- `android/src/main/java/.../bridge/SFMobileSyncReactBridge.kt` - MobileSync bridge
+- `android/src/main/java/.../bridge/ReactBridgeHelper.kt` - Bridge utilities
+- `android/src/main/java/.../ui/SalesforceReactActivity.kt` - Activity (bridgeless mode)
 
 ### Layer 4: Native SDK Libraries
 
@@ -280,8 +290,8 @@ Each module follows the same pattern:
 graph LR
     A[JavaScript Module] --> B[react.force.common.exec]
     B --> C{Platform?}
-    C -->|iOS| D[SFxxxReactBridge.m]
-    C -->|Android| E[XxxReactBridge.kt]
+    C -->|iOS| D[SFxxxReactBridge.mm]
+    C -->|Android| E[SFxxxReactBridge.kt]
     D --> F[iOS SDK Class]
     E --> G[Android SDK Class]
     F --> H[Result]
@@ -307,10 +317,8 @@ const exec = <T>(
   args: Record<string, unknown>,
 ): void => {
   forceExec(
-    "SFOauthReactBridge",         // iOS module name
-    "SalesforceOauthReactBridge", // Android module name
-    SFOauthReactBridge,           // iOS NativeModule
-    SalesforceOauthReactBridge,   // Android NativeModule
+    "SFOauthReactBridge",  // Module name (same on both platforms)
+    SFOauthReactBridge,    // NativeModule (resolved via TurboModuleRegistry)
     successCB,
     errorCB,
     methodName,
@@ -409,28 +417,34 @@ sequenceDiagram
 
 While the JavaScript API is identical on both platforms, there are implementation differences:
 
-### Module Names
+### Module Names (Unified)
+
+As of SDK 14.0, both platforms use the same `SF*` prefix module names:
 
 | JavaScript | iOS Module | Android Module |
 |-----------|-----------|---------------|
-| oauth | `SFOauthReactBridge` | `SalesforceOauthReactBridge` |
-| net | `SFNetReactBridge` | `SalesforceNetReactBridge` |
-| smartstore | `SFSmartStoreReactBridge` | `SmartStoreReactBridge` |
-| mobilesync | `SFMobileSyncReactBridge` | `MobileSyncReactBridge` |
+| oauth | `SFOauthReactBridge` | `SFOauthReactBridge` |
+| net | `SFNetReactBridge` | `SFNetReactBridge` |
+| smartstore | `SFSmartStoreReactBridge` | `SFSmartStoreReactBridge` |
+| mobilesync | `SFMobileSyncReactBridge` | `SFMobileSyncReactBridge` |
 
-### Callback Signature
+### Callback Signature (Unified)
 
-**iOS**: Single callback with `(error, result)` tuple
+Both platforms now use the same single-callback pattern with `(error, result)`:
+
+**iOS** (Objective-C):
 ```objective-c
 callback(@[[NSNull null], result]); // success
 callback(@[error, [NSNull null]]);  // error
 ```
 
-**Android**: Separate success and error callbacks
-```java
-successCallback.invoke(result.toString());  // success
-errorCallback.invoke(error.getMessage());   // error
+**Android** (Kotlin):
+```kotlin
+ReactBridgeHelper.invokeSuccess(callback, result)  // invokes callback(null, resultString)
+ReactBridgeHelper.invokeError(callback, error)     // invokes callback(errorMessage)
 ```
+
+The JavaScript bridge function handles both platforms with one unified code path.
 
 ### Data Serialization
 
@@ -465,6 +479,7 @@ graph TB
     subgraph "This Repository: SalesforceMobileSDK-ReactNative"
         A[JavaScript/TypeScript API<br/>src/]
         B[iOS Bridge<br/>ios/SalesforceReact/]
+        BA[Android Bridge<br/>android/]
     end
     
     subgraph "iOS Dependencies (CocoaPods)"
@@ -472,10 +487,6 @@ graph TB
         D[SalesforceSDKCore]
         E[SmartStore]
         F[MobileSync]
-    end
-    
-    subgraph "Android Repository"
-        G[Android Bridge<br/>libs/SalesforceReact/]
     end
     
     subgraph "Android Dependencies (Gradle)"
@@ -494,18 +505,19 @@ graph TB
     end
     
     A --> B
+    A --> BA
     B --> C
     B --> D
     D --> E
     E --> F
     
-    A -.Android uses.-> G
-    G --> H
+    BA --> H
     H --> I
     I --> J
     
     A --> K
     B --> K
+    BA --> K
     
     K --> L
     K --> M
@@ -574,7 +586,7 @@ pod install  # Installs SalesforceReact and dependencies
 3. Compiles Objective-C bridge code
 4. Links into React Native app
 
-### Android Build (via Gradle)
+### Android Build (via Gradle + Autolinking)
 
 ```bash
 # In React Native app
@@ -583,10 +595,10 @@ cd android
 ```
 
 **Process**:
-1. Gradle resolves `react-native-force` npm package
-2. Finds Android bridge in separate Android repo (currently Java; planned Kotlin migration)
-3. Compiles bridge code
-4. Links Android SDK libraries from Maven Central
+1. React Native autolinking discovers `react-native-force` and its `android/` source
+2. Gradle compiles the Kotlin bridge code from this repo
+3. Links Android SDK libraries from Maven Central
+4. Pre-built C++ JavaTurboModule wrappers (committed to npm package) are used for codegen
 
 ## Module Registration
 
@@ -613,20 +625,16 @@ RCT_EXPORT_METHOD(getAuthCredentials:(NSDictionary *)args
 
 ### Android Module Registration
 
-Modules are registered via a `ReactPackage` (currently Java in `SalesforceMobileSDK-Android/libs/SalesforceReact/`):
+Modules are registered via React Native autolinking. The `react-native-force` package declares its native modules in `react-native.config.js`, so no manual `PackageList` registration is needed in app code.
 
-```java
-public class SalesforceReactPackage implements ReactPackage {
-    @Override
-    public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.asList(
-            new SalesforceOauthReactBridge(reactContext),
-            new SalesforceNetReactBridge(reactContext),
-            new SmartStoreReactBridge(reactContext),
-            new MobileSyncReactBridge(reactContext)
-        );
-    }
-}
+Under the hood, autolinking generates a `ReactPackage` that creates the TurboModule instances:
+
+```kotlin
+// Auto-generated by React Native autolinking
+SFOauthReactBridge(reactContext)
+SFNetReactBridge(reactContext)
+SFSmartStoreReactBridge(reactContext)
+SFMobileSyncReactBridge(reactContext)
 ```
 
 ## Performance Considerations
@@ -701,14 +709,15 @@ iOS Bridge → iOS SDK
         ↓
 Test Results
 
-Android Tests (JUnit runs JavaScript)
+androidTests/ (AndroidX Test/JUnit runs JavaScript)
         ↓
 Android Bridge → Android SDK
         ↓
 Test Results
 ```
 
-See [ios-tests/README.md](ios-tests/README.md) for testing details.
+See [ios-tests/README.md](ios-tests/README.md) for iOS testing details.
+The `androidTests/` directory mirrors `iosTests/` for Android testing.
 
 ## Further Reading
 

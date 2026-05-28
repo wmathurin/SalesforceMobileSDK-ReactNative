@@ -1,0 +1,86 @@
+on:
+  workflow_call:
+    inputs:
+      is_pr:
+        type: boolean
+        default: false
+
+jobs:
+  test-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ inputs.is_pr }}
+        with:
+          fetch-depth: 100
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/checkout@v4
+        if: ${{ ! inputs.is_pr }}
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        env:
+          TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+        run: |
+          npm install -g typescript
+          cd androidTests
+          ./prepareandroid.js
+          ./create_test_credentials_from_env.js
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+          add-job-summary: on-failure
+      - name: Build for Testing
+        run: |
+          cd androidTests/android
+          ./gradlew :app:assembleDebug :app:assembleAndroidTest
+      - uses: 'google-github-actions/auth@v2'
+        if: success() || failure()
+        with:
+          credentials_json: '${{ secrets.GCLOUD_SERVICE_KEY }}'
+      - uses: 'google-github-actions/setup-gcloud@v2'
+        if: success() || failure()
+      - name: Run Tests on Firebase Test Lab
+        if: success() || failure()
+        run: |
+          APP_APK="androidTests/android/app/build/outputs/apk/debug/app-debug.apk"
+          TEST_APK="androidTests/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+          gcloud firebase test android run \
+            --type instrumentation \
+            --app "$APP_APK" \
+            --test "$TEST_APK" \
+            --device model=Pixel2,version=33 \
+            --timeout 10m \
+            --results-bucket cloud-test-${GITHUB_REPOSITORY_OWNER} \
+            --results-dir "SalesforceReactNative/${GITHUB_RUN_ID}" \
+            --no-record-video
+      - name: Copy Test Results
+        if: success() || failure()
+        run: |
+          BUCKET_PATH="gs://cloud-test-${GITHUB_REPOSITORY_OWNER}/SalesforceReactNative/${GITHUB_RUN_ID}"
+          mkdir -p firebase_results
+          gsutil -m cp -r "${BUCKET_PATH}/*/test_result_*.xml" firebase_results/ 2>/dev/null || true
+      - name: Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure()
+        with:
+          check_name: Android Test Results
+          require_tests: true
+          fail_on_failure: true
+          report_paths: 'firebase_results/**.xml'
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: test-results-android
+          path: 'firebase_results/**.xml'

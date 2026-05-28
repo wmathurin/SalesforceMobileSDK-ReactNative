@@ -65,6 +65,7 @@ echo -e "${YELLOW}*** POINTING TO SDK TAG ${SDK_TAG} ***${NC}"
 echo "*** Updating package.json ***"
 update_package_json "./package.json" "${OPT_VERSION}" "${SDK_TAG}"
 update_package_json "./iosTests/package.json" "${OPT_VERSION}" "${SDK_TAG}"
+update_package_json "./androidTests/package.json" "${OPT_VERSION}" "${SDK_TAG}"
 
 echo "*** Updating podspecs ***"
 update_podspec "./SalesforceReact.podspec" "${OPT_VERSION}"
@@ -72,3 +73,9 @@ update_podspec "./SalesforceReact.podspec" "${OPT_VERSION}"
 echo "*** Updating dist ***"
 npm install
 npm run build
+
+echo "*** Updating Android codegen ***"
+rm -rf android/generated/source/codegen
+npx react-native codegen --path . --outputPath . --platform android
+mv android/app/build/generated/source/codegen android/generated/source/codegen
+rm -rf android/app

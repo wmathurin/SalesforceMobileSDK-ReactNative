@@ -28,11 +28,10 @@ import { NativeModules, TurboModuleRegistry } from "react-native";
 import { exec as forceExec, ExecSuccessCallback, ExecErrorCallback } from "./react.force.common";
 import { OAuthMethod, UserAccount } from "./typings/oauth";
 
-// New architecture: TurboModuleRegistry returns the module if registered as a
-// TurboModule. Falls back to NativeModules (legacy bridge / interop mode).
-const SFOauthReactBridge =
+// Lazy module lookup: modules may not be available at import time in bridgeless mode.
+const getSFOauthReactBridge = () =>
   TurboModuleRegistry.get<any>("SFOauthReactBridge") ?? NativeModules.SFOauthReactBridge;
-const SalesforceOauthReactBridge =
+const getSalesforceOauthReactBridge = () =>
   TurboModuleRegistry.get<any>("SalesforceOauthReactBridge") ??
   NativeModules.SalesforceOauthReactBridge;
 
@@ -45,8 +44,8 @@ const exec = <T>(
   forceExec(
     "SFOauthReactBridge",
     "SalesforceOauthReactBridge",
-    SFOauthReactBridge,
-    SalesforceOauthReactBridge,
+    getSFOauthReactBridge(),
+    getSalesforceOauthReactBridge(),
     successCB,
     errorCB,
     methodName,

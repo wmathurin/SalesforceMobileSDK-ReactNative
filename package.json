@@ -46,12 +46,13 @@
     "type": "modules",
     "jsSrcsDir": "src/specs",
     "android": {
-      "javaPackageName": "com.salesforce.androidsdk.reactnative.generated"
+      "javaPackageName": "com.salesforce.androidsdk.reactnative.codegen"
     }
   },
   "scripts": {
     "build": "tsc --build",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "postinstall": "node -e \"var fs=require('fs'),p=require('path');var src=p.resolve(__dirname,'android','generated','source','codegen');var dstDir=p.resolve(__dirname,'android','build','generated','source');var dst=p.join(dstDir,'codegen');if(fs.existsSync(src)&&!fs.existsSync(dst)){fs.mkdirSync(dstDir,{recursive:true});fs.symlinkSync(p.relative(dstDir,src),dst,'dir');}\""
   },
   "peerDependencies": {
     "react-native": "0.81.5"
@@ -66,7 +67,9 @@
     "tsconfig.json",
     "src/**/*",
     "ios/SalesforceReact/**/*",
-    "SalesforceReact.podspec"
+    "SalesforceReact.podspec",
+    "android/**/*",
+    "react-native.config.js"
   ],
   "devDependencies": {
     "@babel/core": "^7.25.2",

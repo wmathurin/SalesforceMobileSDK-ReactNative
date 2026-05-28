@@ -29,9 +29,10 @@ import { exec as forceExec, ExecErrorCallback, ExecSuccessCallback } from "./rea
 import { HttpMethod } from "./typings";
 
 // New architecture: TurboModuleRegistry first, fall back to NativeModules.
-const SFNetReactBridge =
+// Lazy lookup - bridgeless mode doesn't have modules ready at import time.
+const getSFNetReactBridge = () =>
   TurboModuleRegistry.get<any>("SFNetReactBridge") ?? NativeModules.SFNetReactBridge;
-const SalesforceNetReactBridge =
+const getSalesforceNetReactBridge = () =>
   TurboModuleRegistry.get<any>("SalesforceNetReactBridge") ??
   NativeModules.SalesforceNetReactBridge;
 
@@ -83,8 +84,8 @@ export const sendRequest = <T>(
   forceExec(
     "SFNetReactBridge",
     "SalesforceNetReactBridge",
-    SFNetReactBridge,
-    SalesforceNetReactBridge,
+    getSFNetReactBridge(),
+    getSalesforceNetReactBridge(),
     successCB,
     errorCB,
     "sendRequest",

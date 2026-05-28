@@ -22,3 +22,7 @@ jobs:
       ios: ${{ matrix.ios }}
       xcode: ${{ matrix.xcode }}
     secrets: inherit
+
+  android-nightly:
+    uses: ./.github/workflows/reusable-android-workflow.yaml
+    secrets: inherit
