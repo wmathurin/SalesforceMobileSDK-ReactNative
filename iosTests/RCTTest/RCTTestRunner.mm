@@ -77,6 +77,9 @@ static const NSTimeInterval kTestTimeoutSeconds = 120;
         }
       });
 
+  // Reset test status from previous run
+  [[RCTTestModule sharedInstance] resetStatus];
+
   @autoreleasepool {
     UIView *rootView = [_factory.rootViewFactory viewWithModuleName:moduleName
                                                   initialProperties:initialProps

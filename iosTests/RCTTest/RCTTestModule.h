@@ -20,5 +20,6 @@ typedef NS_ENUM(NSInteger, RCTTestStatus) { RCTTestStatusPending = 0, RCTTestSta
 @property (nonatomic, copy) NSString *testSuffix;
 
 + (instancetype)sharedInstance;
+- (void)resetStatus;
 
 @end
