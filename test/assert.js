@@ -30,8 +30,9 @@ assert.containsAllKeys = (obj, keys, message) => {
     assert(missing.length === 0, message || `Missing keys: ${missing.join(', ')}`);
 };
 assert.sameDeepMembers = (arr1, arr2, message) => {
-    const s1 = arr1.map(i => JSON.stringify(i)).sort();
-    const s2 = arr2.map(i => JSON.stringify(i)).sort();
+    const sortedStringify = (obj) => JSON.stringify(obj, Object.keys(obj).sort());
+    const s1 = arr1.map(i => sortedStringify(i)).sort();
+    const s2 = arr2.map(i => sortedStringify(i)).sort();
     assert(JSON.stringify(s1) === JSON.stringify(s2), message || 'Arrays do not have same deep members');
 };
 

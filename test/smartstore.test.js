@@ -263,9 +263,11 @@ function testGetRemoveStores() {
     const thirdStoreConfig = {isGlobalStore:false, storeName:'store_3_' + uniq};
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
-    Promise.all([registerSoup(firstStoreConfig, soupName, indexSpecs),
+    removeAllStores()
+        .then(() => Promise.all([registerSoup(firstStoreConfig, soupName, indexSpecs),
                  registerSoup(secondStoreConfig, soupName, indexSpecs),
                  registerSoup(thirdStoreConfig, soupName, indexSpecs)])
+        )
         .then((result) => {
             assert.deepEqual(result, [soupName, soupName, soupName]);
             return getAllStores();
@@ -287,7 +289,8 @@ function testGetRemoveStores() {
         .then((result) => {
             assert.deepEqual(result, []);
             testDone();
-        });
+        })
+;
 };
 
 function testGetRemoveGlobalStores() {
@@ -297,9 +300,10 @@ function testGetRemoveGlobalStores() {
     const thirdStoreConfig = {isGlobalStore:true, storeName:'store_3_' + uniq};
     const soupName = 'soup_' + uniq;
     const indexSpecs = [{path:'Name', type:'string'}];
-    Promise.all([registerSoup(firstStoreConfig, soupName, indexSpecs),
+    removeAllGlobalStores()
+        .then(() => Promise.all([registerSoup(firstStoreConfig, soupName, indexSpecs),
                  registerSoup(secondStoreConfig, soupName, indexSpecs),
-                 registerSoup(thirdStoreConfig, soupName, indexSpecs)])
+                 registerSoup(thirdStoreConfig, soupName, indexSpecs)]))
         .then((result) => {
             assert.deepEqual(result, [soupName, soupName, soupName]);
             return getAllGlobalStores();
@@ -321,7 +325,8 @@ function testGetRemoveGlobalStores() {
         .then((result) => {
             assert.deepEqual(result, []);
             testDone();
-        });
+        })
+;
 };
 
 
