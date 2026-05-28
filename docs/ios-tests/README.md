@@ -35,8 +35,8 @@ graph TB
         E[ReactMobileSyncTests.m]
     end
     
-    subgraph "React Native Bridge"
-        F[RCTBridge]
+    subgraph "React Native Runtime"
+        F[RCTReactNativeFactory]
     end
     
     subgraph "JavaScript Test Suite"
@@ -222,7 +222,7 @@ xcodebuild test \
 sequenceDiagram
     participant X as XCTest
     participant N as Native Test Case
-    participant RCT as React Native Bridge
+    participant RCT as React Native Runtime
     participant JS as JavaScript Test
     participant SDK as SDK Bridge
     
