@@ -316,11 +316,11 @@ Note: there are no `testFailed`, `assertEqual`, `assertTrue`, etc. helpers in th
 
 **Location**: `test/<module>.test.js`
 
-Tests use Chai for assertions and the `registerTest`/`testDone` harness:
+Tests use a lightweight custom assert module (test/assert.js) and the `registerTest`/`testDone` harness:
 
 ```javascript
 // test/oauth.test.js (actual file)
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as oauth from '../src/react.force.oauth';
 import { registerTest, testDone } from '../src/react.force.test';
 
@@ -358,7 +358,7 @@ Example mapping:
 **1. Add JavaScript test function** (`test/oauth.test.js`):
 
 ```javascript
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as oauth from '../src/react.force.oauth';
 import { registerTest, testDone } from '../src/react.force.test';
 
@@ -388,7 +388,7 @@ RCT_TEST(GetUserInfo)  // generates - (void)testGetUserInfo
 
 ### Test Patterns
 
-Tests use Chai for assertions. Throw errors on failure; call `testDone()` on success.
+Tests use a lightweight custom assert module (test/assert.js). Throw errors on failure; call `testDone()` on success.
 
 #### Async Operations
 
@@ -449,10 +449,10 @@ testWithCleanup = () => {
 
 ### Assertions
 
-The test files use [Chai](https://www.chaijs.com/) for assertions:
+The test files use test/assert.js for assertions:
 
 ```javascript
-import { assert } from 'chai';
+import { assert } from './assert';
 
 // Equality
 assert.equal(actual, expected, 'Message');

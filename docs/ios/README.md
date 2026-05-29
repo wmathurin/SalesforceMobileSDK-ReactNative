@@ -85,7 +85,7 @@ graph TB
 
 ### SFOauthReactBridge
 
-**Location**: `ios/SalesforceReact/SFOauthReactBridge.{h,m}`
+**Location**: `ios/SalesforceReact/SFOauthReactBridge.{h,mm}`
 
 **Purpose**: OAuth authentication and user session management
 
@@ -137,7 +137,7 @@ RCT_EXPORT_METHOD(getAuthCredentials:(NSDictionary *)args
 
 ### SFNetReactBridge
 
-**Location**: `ios/SalesforceReact/SFNetReactBridge.{h,m}`
+**Location**: `ios/SalesforceReact/SFNetReactBridge.{h,mm}`
 
 **Purpose**: Salesforce REST API requests
 
@@ -191,7 +191,7 @@ RCT_EXPORT_METHOD(sendRequest:(NSDictionary *)argsDict
 
 ### SFSmartStoreReactBridge
 
-**Location**: `ios/SalesforceReact/SFSmartStoreReactBridge.{h,m}`
+**Location**: `ios/SalesforceReact/SFSmartStoreReactBridge.{h,mm}`
 
 **Purpose**: Encrypted SQLite database operations
 
@@ -248,7 +248,7 @@ RCT_EXPORT_METHOD(registerSoup:(NSDictionary *)argsDict
 
 ### SFMobileSyncReactBridge
 
-**Location**: `ios/SalesforceReact/SFMobileSyncReactBridge.{h,m}`
+**Location**: `ios/SalesforceReact/SFMobileSyncReactBridge.{h,mm}`
 
 **Purpose**: Bidirectional sync between SmartStore and Salesforce
 
@@ -302,7 +302,7 @@ RCT_EXPORT_METHOD(syncDown:(NSDictionary *)argsDict
 
 ### SFSDKReactLogger
 
-**Location**: `ios/SalesforceReact/SFSDKReactLogger.{h,m}`
+**Location**: `ios/SalesforceReact/SFSDKReactLogger.{h,mm}`
 
 **Purpose**: Logging wrapper for SDK bridge
 
@@ -327,7 +327,7 @@ RCT_EXPORT_METHOD(syncDown:(NSDictionary *)argsDict
 
 ### SalesforceReactSDKManager
 
-**Location**: `ios/SalesforceReact/SalesforceReactSDKManager.{h,m}`
+**Location**: `ios/SalesforceReact/SalesforceReactSDKManager.{h,mm}`
 
 **Purpose**: SDK initialization and configuration
 
@@ -389,7 +389,7 @@ Pod::Spec.new do |s|
   s.dependency 'MobileSync', "~>14.0.0"
   
   # Source files
-  s.source_files = 'ios/SalesforceReact/**/*.{h,m}'
+  s.source_files = 'ios/SalesforceReact/**/*.{h,mm}'
   
   # Public headers
   s.public_header_files = [

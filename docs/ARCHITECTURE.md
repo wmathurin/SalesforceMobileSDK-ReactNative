@@ -148,12 +148,12 @@ Objective-C modules that implement the React Native bridge protocol and call iOS
 - Return results via `RCTResponseSenderBlock` callbacks
 
 **Key Files**:
-- `ios/SalesforceReact/SFOauthReactBridge.{h,m}` - OAuth bridge
-- `ios/SalesforceReact/SFNetReactBridge.{h,m}` - REST API bridge
-- `ios/SalesforceReact/SFSmartStoreReactBridge.{h,m}` - SmartStore bridge
-- `ios/SalesforceReact/SFMobileSyncReactBridge.{h,m}` - MobileSync bridge
-- `ios/SalesforceReact/SFSDKReactLogger.{h,m}` - Logging utilities
-- `ios/SalesforceReact/SalesforceReactSDKManager.{h,m}` - SDK initialization
+- `ios/SalesforceReact/SFOauthReactBridge.{h,m,mm}` - OAuth bridge
+- `ios/SalesforceReact/SFNetReactBridge.{h,m,mm}` - REST API bridge
+- `ios/SalesforceReact/SFSmartStoreReactBridge.{h,m,mm}` - SmartStore bridge
+- `ios/SalesforceReact/SFMobileSyncReactBridge.{h,m,mm}` - MobileSync bridge
+- `ios/SalesforceReact/SFSDKReactLogger.{h,m,mm}` - Logging utilities
+- `ios/SalesforceReact/SalesforceReactSDKManager.{h,m,mm}` - SDK initialization
 
 ### Layer 3b: Android Native Bridge (This Repository)
 
@@ -537,7 +537,7 @@ Pod::Spec.new do |s|
   s.dependency 'SmartStore', "~>14.0.0"
   s.dependency 'MobileSync', "~>14.0.0"
   
-  s.source_files = 'ios/SalesforceReact/**/*.{h,m}'
+  s.source_files = 'ios/SalesforceReact/**/*.{h,m,mm}'
 end
 ```
 
@@ -551,7 +551,7 @@ end
     "react-native": "0.83.9"
   },
   "dependencies": {
-    "react": "19.1.0",
+    "react": "19.2.6",
     "react-native": "0.83.9",
     "react-native-timer": "^1.3.6"
   }

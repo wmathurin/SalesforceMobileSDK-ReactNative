@@ -53,7 +53,7 @@ iOS Bridge (ios/SalesforceReact/) ← YOU ARE HERE (this repo)
         ↓
 iOS SDK Libraries (SalesforceSDKCore, SmartStore, MobileSync)
 
-Android Bridge (SalesforceMobileSDK-Android/libs/SalesforceReact/)
+Android Bridge (this repo: android/)
         ↓
 Android SDK Libraries (SalesforceSDK, SmartStore, MobileSync)
 ```
@@ -112,7 +112,7 @@ The iOS bridge is distributed via CocoaPods. The `SalesforceReact.podspec` decla
 
 ### Android Integration
 
-The Android bridge lives in a separate repository (`SalesforceMobileSDK-Android`) at `libs/SalesforceReact/`. It follows the same pattern as iOS but is written in Kotlin and uses Gradle for dependency management.
+The Android bridge lives in this repository at `android/`. It follows the same pattern as iOS but is written in Kotlin and uses Gradle for dependency management.
 
 ## Version Compatibility
 

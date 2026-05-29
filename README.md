@@ -310,10 +310,10 @@ src/
     └── mobilesync.ts
 
 ios/SalesforceReact/
-├── SFOauthReactBridge.{h,m}     # OAuth bridge
-├── SFNetReactBridge.{h,m}       # REST API bridge
-├── SFSmartStoreReactBridge.{h,m} # SmartStore bridge
-├── SFMobileSyncReactBridge.{h,m} # MobileSync bridge
+├── SFOauthReactBridge.{h,mm}     # OAuth bridge
+├── SFNetReactBridge.{h,mm}       # REST API bridge
+├── SFSmartStoreReactBridge.{h,mm} # SmartStore bridge
+├── SFMobileSyncReactBridge.{h,mm} # MobileSync bridge
 └── SalesforceReactSDKManager.{h,m} # SDK configuration
 
 test/
