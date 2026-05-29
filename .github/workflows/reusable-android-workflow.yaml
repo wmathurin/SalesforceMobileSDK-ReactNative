@@ -48,7 +48,6 @@ jobs:
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407  # v3.2.2
       - uses: gradle/actions/setup-gradle@748248ddd2a24f49513d8f472f81c3a07d4d50e1  # v4.4.4
         with:
-          gradle-version: "8.14.3"
           add-job-summary: on-failure
       - name: Build for Testing
         id: build
@@ -80,7 +79,7 @@ jobs:
             --type instrumentation \
             --app "$APP_APK" \
             --test "$TEST_APK" \
-            --device model=Pixel2,version=33 \
+            --device model=MediumPhone.arm,version=35,locale=en,orientation=portrait \
             --timeout 10m \
             --results-bucket cloud-test-${GITHUB_REPOSITORY_OWNER} \
             --results-dir "SalesforceReactNative/${GITHUB_RUN_ID}" \

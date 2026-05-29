@@ -24,11 +24,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { assert } from 'chai';
+import { assert } from './assert';
 import * as oauth from '../src/react.force.oauth';
 import { registerTest, testDone } from '../src/react.force.test';
 
-testGetAuthCredentials = () => {
+function testGetAuthCredentials() {
     oauth.getAuthCredentials(
         (creds) => {
             assert.containsAllKeys(creds, ["accessToken","instanceUrl","loginUrl","orgId","refreshToken","userAgent","userId"], 'Wrong keys in credentials');

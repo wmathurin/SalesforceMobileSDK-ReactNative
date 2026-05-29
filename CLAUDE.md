@@ -178,8 +178,15 @@ The `test/` directory contains the shared test suite used by both iOS and Androi
 
 **Test files**:
 - `alltests.js` - Entry point that imports all tests
+- `assert.js` - Lightweight assertion module (replaces chai which is incompatible with Hermes strict mode)
 - `*.test.js` - Test modules for each SDK feature
 - Tests use a custom test harness (`harness.test.js`) that bridges to native test frameworks
+
+**Important conventions for test files**:
+- Use named function declarations (`function testName() {}`) not arrow functions — function names are needed for `AppRegistry.registerComponent` registration and are lost with `--dev false` minification
+- Bundle with `--dev false --minify false` (avoids DevTools bridge crash in Hermes while preserving function names)
+- Entry point is `index.js` (imports `{AppRegistry}` from `react-native` to bring `InitializeCore` into the Metro dependency graph)
+- SmartStore tests that call `getAllStores`/`getAllGlobalStores` must clean up first (`removeAllStores`/`removeAllGlobalStores`) since the runtime is shared across tests
 
 ## Code Standards
 

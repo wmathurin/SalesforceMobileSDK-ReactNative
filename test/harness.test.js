@@ -24,16 +24,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { assert } from 'chai';
+import { assert } from './assert';
 import { oauth, forceTest } from 'react-native-force';
 const { registerTest, testDone } = forceTest;
 
-testPassing = () => {
+function testPassing() {
     assert(true, "testPassing should have succeeded");
     testDone();
 };
 
-testAsyncPassing = () => {
+function testAsyncPassing() {
     oauth.getAuthCredentials(
         (creds) => { testDone(); },
         (error) => { throw error; }

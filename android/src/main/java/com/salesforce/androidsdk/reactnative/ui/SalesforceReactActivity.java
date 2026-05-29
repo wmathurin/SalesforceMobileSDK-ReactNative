@@ -54,7 +54,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     private final SalesforceActivityDelegate delegate;
     private RestClient client;
     private ClientManager clientManager;
-    private SalesforceReactActivityDelegate reactActivityDelegate;
 
     /**
      * Pending callback for authentication requests from the React Native bridge.
@@ -97,7 +96,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     public void onResume() {
         super.onResume();
         delegate.onResume(false);
-        loadReactAppOnceIfReady();
     }
 
     @Override
@@ -248,7 +246,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
     protected void setRestClient(RestClient restClient) {
         client = restClient;
         if (client != null) {
-            loadReactAppOnceIfReady();
         }
     }
 
@@ -266,8 +263,7 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
 
     @Override
     protected ReactActivityDelegate createReactActivityDelegate() {
-        reactActivityDelegate = new SalesforceReactActivityDelegate(this, getMainComponentName());
-        return reactActivityDelegate;
+        return new SalesforceReactActivityDelegate(this, getMainComponentName());
     }
 
     protected boolean shouldReactBeRunning() {
@@ -298,12 +294,6 @@ public abstract class SalesforceReactActivity extends ReactActivity implements S
             return getReactNativeHost().getReactInstanceManager();
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    private void loadReactAppOnceIfReady() {
-        if (reactActivityDelegate != null ) {
-            reactActivityDelegate.loadReactAppOnceIfReady(getMainComponentName());
         }
     }
 }
