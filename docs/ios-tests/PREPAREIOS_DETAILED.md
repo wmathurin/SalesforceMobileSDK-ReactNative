@@ -67,7 +67,7 @@ From `iosTests/package.json`:
 {
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.82.1",
+    "react-native": "0.83.9",
     "react-native-force": "file:../"
   },
   "devDependencies": {
@@ -105,7 +105,7 @@ Done in 45.23s.
 1. **Reads React Native version** from parent `package.json` peerDependencies
 
 2. **Clones React Native repository** (shallow clone of specific version):
-   - Uses `--branch v0.82.1` to checkout exact version tag
+   - Uses `--branch v0.83.9` to checkout exact version tag
    - Uses `--single-branch` to only download one branch (faster)
    - Uses `--depth 1` for shallow clone with no history (faster)
 
@@ -323,8 +323,8 @@ end
 === Installing pod dependencies
 Analyzing dependencies
 Downloading dependencies
-Installing React-Core (0.82.1)
-Installing React-hermes (0.82.1)
+Installing React-Core (0.83.9)
+Installing React-hermes (0.83.9)
 Installing SalesforceSDKCore (13.0.0)
 Installing SmartStore (13.0.0)
 Installing MobileSync (13.0.0)

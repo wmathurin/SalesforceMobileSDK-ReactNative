@@ -586,7 +586,7 @@ RCT_EXPORT_METHOD(someMethod:(NSDictionary *)args
 - **Xcode**: 15+
 - **CocoaPods**: 1.10+
 - **Node.js**: 20+
-- **React Native**: 0.82.1
+- **React Native**: 0.83.9
 
 ### Building Bridge Code
 
