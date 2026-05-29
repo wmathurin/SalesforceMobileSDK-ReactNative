@@ -39,6 +39,9 @@ jobs:
           fi
 
   ios-pr:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [permission-check]
     strategy:
       matrix:
@@ -58,6 +61,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   android-pr:
+    permissions:
+      contents: read
     needs: [permission-check]
     uses: ./.github/workflows/reusable-android-workflow.yaml
     with:

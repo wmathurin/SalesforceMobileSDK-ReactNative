@@ -11,6 +11,9 @@ permissions:
 
 jobs:
   ios-nightly:
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -29,6 +32,8 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   android-nightly:
+    permissions:
+      contents: read
     uses: ./.github/workflows/reusable-android-workflow.yaml
     secrets:
       TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
