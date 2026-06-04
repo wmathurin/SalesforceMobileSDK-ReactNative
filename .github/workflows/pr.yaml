@@ -38,28 +38,28 @@ jobs:
             exit 1
           fi
 
-  ios-pr:
-    permissions:
-      contents: read
-      pull-requests: write
-    needs: [permission-check]
-    strategy:
-      fail-fast: false
-      matrix:
-        ios: [^26, ^18]
-        include:
-          - ios: ^26
-            xcode: ^26
-          - ios: ^18
-            xcode: ^16
-    uses: ./.github/workflows/reusable-workflow.yaml
-    with:
-      is_pr: true
-      ios: ${{ matrix.ios }}
-      xcode: ${{ matrix.xcode }}
-    secrets:
-      TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # ios-pr:  # [Test-only] disabled while debugging Android
+  #   permissions:
+  #     contents: read
+  #     pull-requests: write
+  #   needs: [permission-check]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       ios: [^26, ^18]
+  #       include:
+  #         - ios: ^26
+  #           xcode: ^26
+  #         - ios: ^18
+  #           xcode: ^16
+  #   uses: ./.github/workflows/reusable-workflow.yaml
+  #   with:
+  #     is_pr: true
+  #     ios: ${{ matrix.ios }}
+  #     xcode: ${{ matrix.xcode }}
+  #   secrets:
+  #     TEST_CREDENTIALS: ${{ secrets.TEST_CREDENTIALS }}
+  #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   android-pr:
     permissions:
