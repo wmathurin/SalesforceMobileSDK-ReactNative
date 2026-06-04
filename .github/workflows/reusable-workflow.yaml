@@ -103,10 +103,7 @@ jobs:
         env:
           DESTINATION: ${{ steps.resolve_destination.outputs.destination }}
         run: |
-          # Clear Clang module cache to prevent stale entries from other Xcode versions
-          # on the shared runner causing 'redefinition of module SwiftBridging' errors.
-          find ~/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -mindepth 1 -delete 2>/dev/null || true
-          find /tmp -maxdepth 1 -name "org.llvm.clang*" -exec rm -rf {} + 2>/dev/null || true
+          DEVELOPER_DIR="$(xcode-select -p)/.."
           set -o pipefail
           xcodebuild test \
             -workspace iosTests/ios/SalesforceReactTestApp.xcworkspace \
