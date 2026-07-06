@@ -12,6 +12,12 @@ execSync('yarn install', {stdio:[0,1,2]});
 console.log("=== Removing nested node_modules from react-native-force (prevents duplicate React)");
 execSync('rm -rf ' + path.join('node_modules', 'react-native-force', 'node_modules'));
 
+// Overlay the local repo's test/ dir onto the installed package so that files
+// added in this branch (e.g. HeadlessTestApp.js) are available at bundle time.
+// The installed package comes from the published dev branch and may lag.
+console.log("=== Overlaying local test/ onto node_modules/react-native-force/test/");
+execSync('cp -r ' + path.join('..', 'test') + ' ' + path.join('node_modules', 'react-native-force', 'test'));
+
 
 console.log('=== Installing sdk dependencies');
 execSync('node ./updatesdk.js', {stdio: [0,1,2]});
